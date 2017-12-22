@@ -7,7 +7,7 @@ Math.degrees = function(radian){
 
 function init() {
   var scene = new THREE.Scene();
-  var simplexNoise = new SimplexNoise;
+  // var simplexNoise = new SimplexNoise;
 
   var frame = 0;
   var canvasWidth = 1280;
