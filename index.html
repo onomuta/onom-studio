@@ -4,177 +4,214 @@
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, user-scalable=no, minimum-scale=1.0, maximum-scale=1.0">
 	<title>canvas to renban</title>
-	<script src="https://cdnjs.cloudflare.com/ajax/libs/three.js/88/three.min.js"></script>
+	<script src="https://cdnjs.cloudflare.com/ajax/libs/three.js/89/three.min.js"></script>
 	<script src="https://threejs.org/examples/js/controls/OrbitControls.js"></script>
 	<script src="https://cdnjs.cloudflare.com/ajax/libs/dat-gui/0.6.5/dat.gui.min.js"></script>
 	<script src="../js/perlin-noise-simplex.js"></script>
+
+
+
+	<style>
+		*{
+			margin:0;
+			box-sizing:border-box;
+		}
+		body{
+			position:absolute;
+			width:100%;
+			height:100%;
+		}
+		#myCanvas{
+			width:1280px;
+			height:720px
+		}
+	</style>
 	
 </head>
 <body style="background:#ddd; text-align:center">
-  <div id="stage"></div>
+	<div id="stage"></div>
+	<canvas id="myCanvas" style="width:1280px;
+  height:720px"></canvas>
 </body>
-  <script>
-		function init() {
-			var scene = new THREE.Scene();
-			var width  = 1280;
-			var height = 720;
-		  // var width  = 640;
-		  // var height = 360; 
-
-		  var simplexNoise = new SimplexNoise;
-
-	  	// Camera _____________________________________________________
-		  var fov    = 60;
-		  var aspect = width / height;
-		  var near   = 1;
-		  var far    = 4000;
-		  var camera = new THREE.PerspectiveCamera( fov, aspect, near, far );
-		  camera.position.set( 0, 0, 60 );
-
-		  scene.fog = new THREE.Fog(0x000000, 0.25, 200);
-
-		  var renderer = new THREE.WebGLRenderer({antialias: true});
-		  renderer.setClearColor(new THREE.Color(0x000000));
-		  renderer.setSize( width, height );
-		  renderer.shadowMap.enabled = true;
-		  renderer.domElement.id = 'three';
-		  document.body.appendChild( renderer.domElement );
-
-	  	// Helper ___________________________________________________
-		  var axis = new THREE.AxisHelper(1000);
-			axis.position.set(0,0,0);
-			scene.add(axis);
-
-	  	// Lighting ___________________________________________________
-      var light = new THREE.SpotLight(0xffffff);
-      light.position.set( -90, -60, 60 );
-      light.target.position.set( 0, 0, 0 );
-      // light.shadowCameraVisible = true;
-      light.castShadow = true;
-      scene.add( light );
-
-      // GUI ________________________________________________________
-	  	var ctrl = new function() {
-			  this.color = "#ffffff";
-			  this.color2 = "#000000";
-			  this.speed = 0.8;
-			  this.hoge = 0.8;
-			  this.save = false;
-			  this.run = true;
-			};
-
-			var gui = new dat.GUI();
-		  gui.addColor(ctrl, 'color');
-		  gui.addColor(ctrl, 'color2');
-		  gui.add(ctrl, 'speed', 0, 2);
-		  gui.add(ctrl, 'hoge', 0, 20);
-		  gui.add(ctrl, 'save');
-		  gui.add(ctrl, 'run');
-	 
-	  	// Object ____________________________________________________
-
-	  	var symbols = [];
-	  	var symbol = new THREE.Object3D();
-			var group = new THREE.Object3D();
-		  var sphere = new THREE.SphereGeometry(32);
-		  var material2 = new THREE.MeshPhongMaterial( {  color: 0xff00aa , emissive : 0xffffff} );
-			var ball = new THREE.Mesh(sphere, material2);
-
-			var geometry = new THREE.PlaneGeometry( 100, 400, 32, 128 );
-
-			
-			ground = new THREE.Mesh(
-			    geometry,
-			    new THREE.MeshBasicMaterial( {  color: 0x00FF7F, blending: THREE.AdditiveBlending, transparent: true, wireframe: true} )
-			);
+<script src="../main.js"></script>
 
 
-			ground2 = new THREE.Mesh(
-			    geometry,
-			    new THREE.MeshBasicMaterial( {  color: 0x00FF7F, blending: THREE.AdditiveBlending, transparent: true, wireframe: false} )
-			);
+<script>
+// 	function init() {
+//   var scene = new THREE.Scene();
+//   var width  = 1280;
+//   var height = 720;
+//   // var width  = 640;
+//   // var height = 360; 
+
+//   var simplexNoise = new SimplexNoise;
 
 
-			// ground.rotation.x = Math.PI / -2;
-
-			
-			scene.add(ground, ground2, ball);
+//   var frame = 0;
+//   var canvasWidth = 1280;
+//   var canvasHeight = 720;
+//   // Renderer =========================================================
+//     var renderer = new THREE.WebGLRenderer({
+//       canvas:document.getElementById('myCanvas'),
+//       antialias: true
+//     });
+//     renderer.setClearColor(new THREE.Color(0x000000));
+//     renderer.setSize(canvasWidth, canvasHeight);
+//     // renderer.shadowMap.enabled = true;
+// 		renderer.domElement.id = 'three';
+		
 
 
 
+//   // Camera _____________________________________________________
+//   var fov    = 60;
+//   var aspect = width / height;
+//   var near   = 1;
+//   var far    = 4000;
+//   var camera = new THREE.PerspectiveCamera( fov, aspect, near, far );
+//   camera.position.set( 0, 0, 60 );
 
-	  	// Run ________________________________________________________
-			var frame = 0;
-		  render();
-		  function render(){
-		  	if (ctrl.run) {
-			  	// looooooooop ______________________________________________
-			  	
-			  	material = new THREE.MeshPhongMaterial( {  color: 0x00FF7F } );
-			  	camera.position.x = 20 *Math.sin(frame/160.);
-			  	camera.position.y = 10 * Math.sin(frame/120.)+0;
-			  	// camera.position.z = 100 * Math.cos(frame/50.);
-			    camera.lookAt(new THREE.Vector3(0, 0, 0));
-
-					for ( i = 0; i < ground.geometry.vertices.length; i++ ) {
-					    var vertex = ground.geometry.vertices[ i ];
-					    vertex.z = simplexNoise.noise3d( vertex.x / 10 , vertex.y / 90 + (frame/30 * ctrl.speed), frame/100)*10;
-
-					    // vertex.x = ;
-					}
-
-			    ground.geometry.verticesNeedUpdate=true;
-			    ground.geometry.computeFaceNormals();
-					ground.geometry.computeVertexNormals();
-
-					ground.rotation.x= 90;
-					ground2.rotation.x= 90;
-					ground2.position.y= ctrl.hoge;
-
-					ball.scale.x = ball.scale.y = ball.scale.z = (simplexNoise.noise3d(1,5,frame/10) + 1 ) *0.2;
-					ball.position.x = simplexNoise.noise3d(0,0,frame/50)*50;
-					ball.position.y = simplexNoise.noise3d(100,0,frame/50 + 1234)*50 + 20;
-					ball.position.z = simplexNoise.noise3d(0,110,frame/50 + 9999)*50-60;
-
-			    light.position.set( camera.position.x, camera.position.y, camera.position.z );
-			    light.target.position.set( 0, 0, 0 );
-
-			    
-			 	 //なんやかんや __________________________________________________
-			  	frame++;
-		  	}
-        requestAnimationFrame(render);
-        renderer.render(scene, camera);
-        saveFrame();//保存呼び出し
-		  };
+//   scene.fog = new THREE.Fog(0x000000, 0.25, 200);
 
 
-		  function disperseRandom() {
-			    for (var i = 0, len = symbols.length; i < len; i++) {
-			        var sym = symbols[i];
-			        sym.position.set(100 * Math.random() - 50, 100 * Math.random() - 50, 100 * Math.random() - 50);
-			        sym.lookAt(sphere.position);
-			        group.add(sym);
-			    }
-			    scene.add(group);
-			}
+//   document.body.appendChild( renderer.domElement );
 
-			
+//   // Helper ___________________________________________________
+//   // var axis = new THREE.AxesHelper(1000);
+//   // axis.position.set(0,0,0);
+//   // scene.add(axis);
 
-		  //保存処理 ______________________________________________________
-			var renderA = document.createElement('a');
-			var frameCount = 0;
-			function saveFrame(){
-			  if ( ctrl.save && ctrl.run) {
-			    var canvas  = document.getElementById('three');
-			    renderA.href = canvas.toDataURL();
-			    renderA.download = ( '0000' + frameCount ).slice( -5 ) + '.png';
-			    renderA.click();
-			    frameCount++;
-			  };
-			}
-		}
-		window.onload = init();
-	</script>
-</body>
+//   // Lighting ___________________________________________________
+//   var light = new THREE.SpotLight(0xffffff);
+//   light.position.set( -90, -60, 60 );
+//   light.target.position.set( 0, 0, 0 );
+//   // light.shadowCameraVisible = true;
+//   light.castShadow = true;
+// 	scene.add( light );
+	
+
+
+
+//   // GUI ________________________________________________________
+//   var ctrl = new function() {
+//     this.color = "#ffffff";
+//     this.color2 = "#000000";
+//     this.speed = 0.8;
+//     this.hoge = 0.8;
+//     this.save = false;
+//     this.run = true;
+//   };
+
+//   var gui = new dat.GUI();
+//   gui.addColor(ctrl, 'color');
+//   gui.addColor(ctrl, 'color2');
+//   gui.add(ctrl, 'speed', 0, 2);
+//   gui.add(ctrl, 'hoge', 0, 20);
+//   gui.add(ctrl, 'save');
+//   gui.add(ctrl, 'run');
+
+//   // Object ____________________________________________________
+
+//   var symbols = [];
+//   var symbol = new THREE.Object3D();
+//   var group = new THREE.Object3D();
+//   var sphere = new THREE.SphereGeometry(32);
+//   var material2 = new THREE.MeshPhongMaterial( {  color: 0xff00aa , emissive : 0xffffff} );
+//   var ball = new THREE.Mesh(sphere, material2);
+
+//   var geometry = new THREE.PlaneGeometry( 100, 400, 32, 128 );
+
+//   ground = new THREE.Mesh(
+//       geometry,
+//       new THREE.MeshBasicMaterial( {  color: 0x00FF7F, blending: THREE.AdditiveBlending, transparent: true, wireframe: true} )
+//   );
+
+//   ground2 = new THREE.Mesh(
+//       geometry,
+//       new THREE.MeshBasicMaterial( {  color: 0x00FF7F, blending: THREE.AdditiveBlending, transparent: true, wireframe: false} )
+//   );
+
+
+//   // ground.rotation.x = Math.PI / -2;
+
+  
+//   scene.add(ground, ground2, ball);
+
+
+
+
+//   // Run ________________________________________________________
+//   var frame = 0;
+//   render();
+//   function render(){
+//     if (ctrl.run) {
+//       // looooooooop ______________________________________________
+      
+//       material = new THREE.MeshPhongMaterial( {  color: 0x00FF7F } );
+//       camera.position.x = 20 *Math.sin(frame/160.);
+//       camera.position.y = 10 * Math.sin(frame/120.)+0;
+//       // camera.position.z = 100 * Math.cos(frame/50.);
+//       camera.lookAt(new THREE.Vector3(0, 0, 0));
+
+//       for ( i = 0; i < ground.geometry.vertices.length; i++ ) {
+//           var vertex = ground.geometry.vertices[ i ];
+//           vertex.z = simplexNoise.noise3d( vertex.x / 10 , vertex.y / 90 + (frame/30 * ctrl.speed), frame/100)*10;
+
+//           // vertex.x = ;
+//       }
+
+//       ground.geometry.verticesNeedUpdate=true;
+//       ground.geometry.computeFaceNormals();
+//       ground.geometry.computeVertexNormals();
+
+//       ground.rotation.x= 90;
+//       ground2.rotation.x= 90;
+//       ground2.position.y= ctrl.hoge;
+
+//       ball.scale.x = ball.scale.y = ball.scale.z = (simplexNoise.noise3d(1,5,frame/10) + 1 ) *0.2;
+//       ball.position.x = simplexNoise.noise3d(0,0,frame/50)*50;
+//       ball.position.y = simplexNoise.noise3d(100,0,frame/50 + 1234)*50 + 20;
+//       ball.position.z = simplexNoise.noise3d(0,110,frame/50 + 9999)*50-60;
+
+//       light.position.set( camera.position.x, camera.position.y, camera.position.z );
+//       light.target.position.set( 0, 0, 0 );
+
+      
+//       //なんやかんや __________________________________________________
+//       frame++;
+//     }
+//     requestAnimationFrame(render);
+//     renderer.render(scene, camera);
+//     saveFrame();//保存呼び出し
+//   };
+
+
+//   function disperseRandom() {
+//       for (var i = 0, len = symbols.length; i < len; i++) {
+//           var sym = symbols[i];
+//           sym.position.set(100 * Math.random() - 50, 100 * Math.random() - 50, 100 * Math.random() - 50);
+//           sym.lookAt(sphere.position);
+//           group.add(sym);
+//       }
+//       scene.add(group);
+//   }
+
+  
+
+//   //保存処理 ______________________________________________________
+//   var renderA = document.createElement('a');
+//   var frameCount = 0;
+//   function saveFrame(){
+//     if ( ctrl.save && ctrl.run) {
+//       var canvas  = document.getElementById('three');
+//       renderA.href = canvas.toDataURL();
+//       renderA.download = ( '0000' + frameCount ).slice( -5 ) + '.png';
+//       renderA.click();
+//       frameCount++;
+//     };
+//   }
+// }
+// window.onload = init();
+</script>
+
 </html>
