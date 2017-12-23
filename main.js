@@ -7,20 +7,46 @@ Math.degrees = function(radian){
 
 function init() {
   var scene = new THREE.Scene();
-  // var simplexNoise = new SimplexNoise;
-
   var frame = 0;
   var canvasWidth = 1280;
   var canvasHeight = 720;
-
   var width  = canvasWidth;
   var height = canvasHeight;
-
 
   var time = 0;
   var duration = 100;
 
-  
+  var exportFlg = false;
+
+  // GUI ===============================================================
+    var ctrl = new function() {
+      this.TEXT = "ebimog";   
+      this.size = 2;
+      this.posX = -90;
+      this.color = "#ff0033";
+      this.color2 = "#ffffff";
+      this.duration = 180;
+
+      this.export = function() { exportFlg = true};
+    };
+
+    var gui = new dat.GUI();
+
+    var controllerTEXT = gui.add(ctrl, 'TEXT');
+    gui.add(ctrl, 'posX', -100, 0);
+
+    gui.add(ctrl, 'size', 0.5, 2);
+    var controllerCOLOR1 = gui.addColor(ctrl, 'color');
+    var controllerCOLOR2 = gui.addColor(ctrl, 'color2');
+    // gui.add(ctrl, 'speed', 0, 2);
+    gui.add(ctrl, 'duration', 10, 600);
+
+    gui.add(ctrl, 'export');
+
+    
+    textMaterial1 = new THREE.MeshStandardMaterial( { color: ctrl.color } );
+    textMaterial2 = new THREE.MeshStandardMaterial( { color: ctrl.color2 } );
+    textMaterials = [textMaterial1,textMaterial2];
 
   // Renderer =========================================================
     var renderer = new THREE.WebGLRenderer({
@@ -34,10 +60,16 @@ function init() {
     // document.body.appendChild( renderer.domElement );
     
 
+    var textMaterial1 = new THREE.MeshStandardMaterial( { color: ctrl.color } );
+    var textMaterial2 = new THREE.MeshStandardMaterial( { color: ctrl.color2 } );
+    textMaterial1.needsUpdate = true;
+    textMaterial2.needsUpdate = true;
+    var textMaterials = [textMaterial1,textMaterial2];
+    textMaterials.needsUpdate = true;
 
 
   // TEXTLOAD =========================================================
-  // テキストロードしてから開始
+    // テキストロードしてから開始
     var loader = new THREE.FontLoader();
     loader.load('fonts/Fugaz_One_Regular.json', function(font){
       mainFont = font;
@@ -50,10 +82,7 @@ function init() {
         bevelSize: 1,
         bevelEnabled: true
       });
-      textMaterials = [
-        new THREE.MeshStandardMaterial( { color: 0xffffff } ),
-        new THREE.MeshStandardMaterial( { color: 0xff0000} )
-      ];
+            
       textMesh = new THREE.Mesh(textGeometry, textMaterials);
       textMesh.position.x = ctrl.posX;
       scene.add(textMesh);
@@ -64,7 +93,7 @@ function init() {
 
 
   // Camera ===========================================================
-    var fov    = 60;
+    var fov    = 90;
     var aspect = width / height;
     var near   = 1;
     var far    = 4000;
@@ -72,7 +101,7 @@ function init() {
     camera.position.set( 0, 0, 100 );
     camera.lookAt(new THREE.Vector3(0, 0, 0));
     
-    scene.fog = new THREE.Fog(0x000000, 0.25, 200);
+    scene.fog = new THREE.Fog(0x000000, 0.25, 250);
 
   // Light =============================================================
     var topLight = new THREE.DirectionalLight(0xffffff);
@@ -84,35 +113,31 @@ function init() {
     scene.add(ambient);
 	
 
-  // GUI ________________________________________________________
-    var ctrl = new function() {
-      this.TEXT = "DJ hoge";   
-      this.size = 1;
-      this.posX = -50;
-      this.color = "#ffffff";
-      this.color2 = "#000000";
-      // this.speed = 0.8;
-      this.duration = 180;
-      this.save = false;
-      this.run = true;
-    };
-
-    var gui = new dat.GUI();
-
-    var controllerTEXT = gui.add(ctrl, 'TEXT');
-    var controllerPosX = gui.add(ctrl, 'posX', -100, 0);
-    
-    
-    gui.add(ctrl, 'size', 0.5, 2);
-    gui.addColor(ctrl, 'color');
-    gui.addColor(ctrl, 'color2');
-    // gui.add(ctrl, 'speed', 0, 2);
-    gui.add(ctrl, 'duration', 30, 600);
-    gui.add(ctrl, 'save');
-    gui.add(ctrl, 'run');
-
-
-
+  // SNOW ============================================================================
+    // snow
+    var snowGeometry = new THREE.Geometry();
+    var snowNum = 1000;
+    var snowPoints, snowMaterial;
+    var snowS = [];
+    // setup
+    for (let i = 0; i < snowNum; i++) {
+      var snow = new THREE.Vector3();
+      snow.x = THREE.Math.randFloatSpread( 300 );
+      snow.y = THREE.Math.randFloatSpread( 300 );
+      snow.z = THREE.Math.randFloatSpread( 300 );
+      snowS[i] = Math.random() * 0.05 + 0.01;
+      snowGeometry.vertices.push( snow );
+    }
+    snowMaterial = new THREE.PointsMaterial({
+      // map: new THREE.TextureLoader().load( "https://png.icons8.com/winter/win8/50/ffffff" ),
+      map: new THREE.TextureLoader().load( "https://png.icons8.com/nolan/64/000000/plus.png" ),
+      size: 10,
+      transparent: true,
+      depthTest : false,
+      blending : THREE.AdditiveBlending
+    });
+    snowPoints = new THREE.Points(snowGeometry, snowMaterial);
+    scene.add(snowPoints);
 
 //  TEXT==========================================
 
@@ -150,10 +175,13 @@ function init() {
   controllerTEXT.onChange(function(value) {
     updateTxt();
   });
-  // controllerPosX.onChange(function(value) {
-  //   updateTxt();
-  // });
 
+  controllerCOLOR1.onChange(function(value) {
+    updateTxt();
+  });
+  controllerCOLOR2.onChange(function(value) {
+    updateTxt();
+  });
 
 
 
@@ -161,44 +189,69 @@ function init() {
   // Object ____________________________________________________
 
   function anim(){
-
+    duration = ctrl.duration-1;    
+    
     textMesh.position.x = ctrl.posX;
     textMesh.scale.set(ctrl.size,ctrl.size,ctrl.size);
     textMesh.position.y = (ctrl.size * -10) +3;
 
-    
-    
+    scene.rotation.y = Math.tween.Cubic.easeInOut(time,0,1,1) * ( Math.PI / 180 ) *360 ;    
   }
 
 
+  var exportStart = false;
 
   // Run ________________________________________________________
   function render(){
-    if (ctrl.run) {
-      anim();
-      frame++;
-
-      duration = ctrl.duration;
-      time = frame / duration;
-
-      scene.rotation.y = time * ( Math.PI / 180 ) *360 ;;
+    
+    if(exportFlg == true){
+      if(exportStart == false){
+        frame = 0;
+        exportStart = true;
+      }
     }
+
+    if(time >= 1){
+      frame = 0;
+      exportFlg = false;
+      exportStart = false;
+    }
+
+    time = (frame / duration);  
+    
+    anim();    
     renderer.render(scene, camera);
-    saveFrame();//保存呼び出し
-    requestAnimationFrame(render);    
+    saveFrame();
+
+    frame++;
+    
+    
+
+
+    requestAnimationFrame(render);     
   };
 
   //保存処理 ______________________________________________________
   var renderA = document.createElement('a');
-  var frameCount = 0;
+  // 生成する文字列に含める文字セット
+  var c = "abcdefghijklmnopqrstuvwxyz";
+  var cl = c.length;
+  var r = "";
+  for(var i=0; i<4; i++){
+    r += c[Math.floor(Math.random()*cl)];
+  }
   function saveFrame(){
-    if ( ctrl.save && ctrl.run) {
+    if(exportFlg == true){
       var canvas  = document.getElementById('three');
       renderA.href = canvas.toDataURL();
-      renderA.download = ( '0000' + frameCount ).slice( -5 ) + '.png';
+      renderA.download = r + '_' + ( '000' + frame ).slice( -4 ) + '.png';
       renderA.click();
-      frameCount++;
-    };
+    }
   }
+
+
+  
+
+
 }
 window.onload = init();
