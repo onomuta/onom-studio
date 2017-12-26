@@ -20,9 +20,9 @@ function init() {
 
   // GUI ===============================================================
     var ctrl = new function() {
-      this.TEXT = "ebimog";   
-      this.size = 2;
-      this.posX = -90;
+      this.TEXT = "ELEMOG";   
+      this.size = 1.5;
+      this.posX = -82;
       this.color = "#ff0033";
       this.color2 = "#ffffff";
       this.duration = 180;
@@ -196,6 +196,10 @@ function init() {
     textMesh.position.y = (ctrl.size * -10) +3;
 
     scene.rotation.y = Math.tween.Cubic.easeInOut(time,0,1,1) * ( Math.PI / 180 ) *360 ;    
+
+
+    camera.position.x = Math.sin(time * 6.25)* 4;
+    camera.position.y = Math.sin(time * 6.25)* 5;
   }
 
 
