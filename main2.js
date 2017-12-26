@@ -68,29 +68,7 @@ function init() {
     textMaterials.needsUpdate = true;
 
 
-  // TEXTLOAD =========================================================
-    // テキストロードしてから開始
-    var loader = new THREE.FontLoader();
-    loader.load('fonts/Fugaz_One_Regular.json', function(font){
-      mainFont = font;
-      textGeometry = new THREE.TextGeometry(ctrl.TEXT, {
-        font: font,
-        size: 20,
-        height: 0.2,
-        curveSegments: 8,
-        bevelThickness: 2,
-        bevelSize: 1,
-        bevelEnabled: true
-      });
-            
-      textMesh = new THREE.Mesh(textGeometry, textMaterials);
-      textMesh.position.x = ctrl.posX;
-      scene.add(textMesh);
   
-      render();
-    });
-
-
 
   // Camera ===========================================================
     var fov    = 90;
@@ -101,7 +79,7 @@ function init() {
     camera.position.set( 0, 0, 100 );
     camera.lookAt(new THREE.Vector3(0, 0, 0));
     
-    scene.fog = new THREE.Fog(0x000000, 0.25, 250);
+    scene.fog = new THREE.Fog(0x000000, 0.25, 100);
 
   // Light =============================================================
     var topLight = new THREE.DirectionalLight(0xffffff);
@@ -113,93 +91,66 @@ function init() {
     scene.add(ambient);
 	
 
-  // SNOW ============================================================================
-    // snow
-    var snowGeometry = new THREE.Geometry();
-    var snowNum = 1000;
-    var snowPoints, snowMaterial;
-    var snowS = [];
-    // setup
-    for (let i = 0; i < snowNum; i++) {
-      var snow = new THREE.Vector3();
-      snow.x = THREE.Math.randFloatSpread( 300 );
-      snow.y = THREE.Math.randFloatSpread( 300 );
-      snow.z = THREE.Math.randFloatSpread( 300 );
-      snowS[i] = Math.random() * 0.05 + 0.01;
-      snowGeometry.vertices.push( snow );
+
+//  CUBE==========================================
+    // 立方体
+    var boxGeometry = new THREE.BoxGeometry( 1, 1, 1 );
+    var boxMaterial = new THREE.MeshStandardMaterial( {color: 0xffaa00} );
+    var boxMesh = new THREE.Mesh( boxGeometry, boxMaterial );
+    boxMesh.position.x = 10;
+    scene.add( boxMesh );
+
+
+
+    var NUM = 189;　// 生成するcubeの数
+    var cube = [];
+
+    for(var i = 0; i < NUM; i++) {
+      cube[i] = new THREE.Mesh( boxGeometry, boxMaterial);
+      cube[i].castShadow = true;
+      // cube[i].rotation.x = i / 10*Math.PI;
+      // cube[i].rotation.y = i / 10*Math.PI;
+      cube[i].position.x = i - NUM/2 ;
+      cube[i].position.x = Math.cos(i / 10) * 10 ;
+      cube[i].position.y = Math.sin(i / 10) * 10 ;
+      scene.add(cube[i]);
     }
-    snowMaterial = new THREE.PointsMaterial({
-      // map: new THREE.TextureLoader().load( "https://png.icons8.com/winter/win8/50/ffffff" ),
-      map: new THREE.TextureLoader().load( "https://png.icons8.com/nolan/64/000000/plus.png" ),
-      size: 10,
-      transparent: true,
-      depthTest : false,
-      blending : THREE.AdditiveBlending
-    });
-    snowPoints = new THREE.Points(snowGeometry, snowMaterial);
-    scene.add(snowPoints);
-
-//  TEXT==========================================
-
-  var textGeometry;
-  var textMaterials;
-  var textMesh;
 
 
-  var mainFont;
-
-
-  function updateTxt(){
-    scene.remove( textMesh );
-    textGeometry.dispose();
-
-    textGeometry = new THREE.TextGeometry(ctrl.TEXT, {
-      font: mainFont,
-      size: 20,
-      height: 0.2,
-      curveSegments: 8,
-      bevelThickness: 2,
-      bevelSize: 1,
-      bevelEnabled: true
-    });
-
-    textMaterials = [
-      new THREE.MeshStandardMaterial( { color: ctrl.color } ),
-      new THREE.MeshStandardMaterial( { color: ctrl.color2} )
-    ];
-
-    textMesh = new THREE.Mesh(textGeometry, textMaterials);
-    textMesh.position.x = ctrl.posX;
-    scene.add(textMesh);
-  }
-  controllerTEXT.onChange(function(value) {
-    updateTxt();
-  });
-
-  controllerCOLOR1.onChange(function(value) {
-    updateTxt();
-  });
-  controllerCOLOR2.onChange(function(value) {
-    updateTxt();
-  });
-
-
-
+    
+  
 
   // Object ____________________________________________________
 
   function anim(){
-    duration = ctrl.duration-1;    
+    duration = ctrl.duration-1;  
     
-    textMesh.position.x = ctrl.posX;
-    textMesh.scale.set(ctrl.size,ctrl.size,ctrl.size);
-    textMesh.position.y = (ctrl.size * -10) +3;
+    boxMesh.position.z = time * 200;
+    // boxMesh2.position.z = ((time + 0.5)%1) * 200;
+    
+    // textMesh.position.x = ctrl.posX;
+    // textMesh.scale.set(ctrl.size,ctrl.size,ctrl.size);
+    // textMesh.position.y = (ctrl.size * -10) +3;
 
-    scene.rotation.y = Math.tween.Cubic.easeInOut(time,0,1,1) * ( Math.PI / 180 ) *360 ;    
+    // scene.rotation.y = Math.tween.Cubic.easeInOut(time,0,1,1) * ( Math.PI / 180 ) *360 ;    
 
 
-    camera.position.x = Math.sin(time * 6.25)* 4;
-    camera.position.y = Math.sin(time * 6.25)* 5;
+
+
+    for(var i = 0; i < NUM; i++) {
+      // cube[i].rotation.y += i / 25000 * Math.PI;
+      // cube[i].rotation.x += i / 25000 * Math.PI;
+
+      cube[i].position.z = ((time + i/NUM)%1) * 100;
+      
+    }
+
+
+
+
+    // camera shake ========
+    // camera.position.x = Math.sin(time * 6.25)* 4;
+    // camera.position.y = Math.sin(time * 6.25)* 5;
   }
 
 
@@ -228,12 +179,10 @@ function init() {
     saveFrame();
 
     frame++;
-    
-    
-
 
     requestAnimationFrame(render);     
   };
+  render();
 
   //保存処理 ______________________________________________________
   var renderA = document.createElement('a');
