@@ -93,16 +93,31 @@ function init() {
     textMaterials = [textMaterial1,textMaterial2];
 
   // Renderer =========================================================
+
+
+
+    var myCanvas = document.getElementById('myCanvas');
+  
+  
+  
     var renderer = new THREE.WebGLRenderer({
-      canvas:document.getElementById('myCanvas'),
+      canvas: myCanvas,
       antialias: true
     });
+
+
+
+    myCanvas.style.width = "#BBCCDD";
+    
+
+
 
     var ctx = document.getElementById('myCanvas2').getContext('2d');
     ctx.font = "48px serif";
   
     renderer.setClearColor(new THREE.Color(0x000000));
     renderer.setSize(canvasWidth, canvasHeight);
+    
     renderer.shadowMap.enabled = true;
 		renderer.domElement.id = 'three';
     // document.body.appendChild( renderer.domElement );
@@ -388,6 +403,7 @@ function init() {
     ctx.fillStyle = ("#000000");      
     ctx.fillText(frame + 1 + "/" + duration, 10, 40 );
   }
-
+  myCanvas.style.width = "100%";
+  myCanvas.style.height = "initial";
 }
 window.onload = init();
