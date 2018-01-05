@@ -5,6 +5,10 @@ Math.degrees = function(radian){
   return radian * 360/(2*Math.PI);
 }
 
+Math.radians = function(degrees) {
+  return degrees * Math.PI / 180;
+};
+
 function init() {
   var scene = new THREE.Scene();
   var frame = 0;
@@ -14,27 +18,35 @@ function init() {
   var height = canvasHeight;
 
   var time = 0;
-  var duration = 100;
+  var duration;
 
   var exportFlg = false;
 
   // GUI ===============================================================
     var ctrl = new function() {
-      this.f1_count = 300;
+      this.f1_count = 0;  /////////////
       this.f1_sizeX = 1.0;
       this.f1_sizeY = 1.0;
       this.f1_sizeZ = 10.0;
       this.f1_color1 = "#ffffff";
       this.f1_color2 = "#ff0000";
+
+      this.f2_count = 0; /////////////
+      this.f2_size = 5;
+      this.f2_width = 0.5;
+      this.f2_color = "#ffffff";
+      this.f2_Segments = 8;
       
+      this.f3_count = 200;
+      this.f3_size = 1;
       
 
-
+      
       this.TEXT = "ELEMOG";   
       this.size = 1.5;
       this.color = "#ff0033";
       this.color2 = "#ffffff";
-      this.duration = 180;
+      this.duration = 600;
 
       this.export = function() { exportFlg = true};
     };
@@ -42,6 +54,7 @@ function init() {
     var gui = new dat.GUI();
 
     var f1 = gui.addFolder('Particle');
+    f1.open();
     var f1_count = f1.add(ctrl, 'f1_count', 0, 5000);
     var f1_sizeX = f1.add(ctrl, 'f1_sizeX', 0.1, 50);
     var f1_sizeY = f1.add(ctrl, 'f1_sizeY', 0.1, 50);
@@ -49,16 +62,31 @@ function init() {
     var f1_color1 = f1.addColor(ctrl, 'f1_color1');
     var f1_color2 = f1.addColor(ctrl, 'f1_color2');
     
+    var f2 = gui.addFolder('Ring');
+    f2.open();
+    var f2_count = f2.add(ctrl, 'f2_count', 0, 10);
+    var f2_size = f2.add(ctrl, 'f2_size', 0, 15);
+    var f2_width = f2.add(ctrl, 'f2_width', 0.1, 4);
+    var f2_Segments = f2.add(ctrl, 'f2_Segments', 3, 64);
+    var f2_color = f2.addColor(ctrl, 'f2_color');
+    
+    var f3 = gui.addFolder('Spiral');
+    f3.open();
+    var f3_count = f3.add(ctrl, 'f3_count', 0, 400);
+    var f3_size = f3.add(ctrl, 'f3_size', 0.8, 3);
+    
 
 
-
-    var controllerTEXT = gui.add(ctrl, 'TEXT');
-    gui.add(ctrl, 'size', 0.5, 2);
-    var controllerCOLOR1 = gui.addColor(ctrl, 'color');
-    var controllerCOLOR2 = gui.addColor(ctrl, 'color2');
+    // var controllerTEXT = gui.add(ctrl, 'TEXT');
+    // gui.add(ctrl, 'size', 0.5, 2);
+    // var controllerCOLOR1 = gui.addColor(ctrl, 'color');
+    // var controllerCOLOR2 = gui.addColor(ctrl, 'color2');
     // gui.add(ctrl, 'speed', 0, 2);
-    gui.add(ctrl, 'duration', 10, 600);
-    gui.add(ctrl, 'export');
+
+    var f0 = gui.addFolder('Export');
+    f0.open();
+    f0.add(ctrl, 'duration', 10, 600);
+    f0.add(ctrl, 'export');
 
     textMaterial1 = new THREE.MeshStandardMaterial( { color: ctrl.color } );
     textMaterial2 = new THREE.MeshStandardMaterial( { color: ctrl.color2 } );
@@ -95,7 +123,7 @@ function init() {
     camera.position.set( 0, 0, 100 );
     camera.lookAt(new THREE.Vector3(0, 0, 0));
     
-    scene.fog = new THREE.Fog(0x000000, 0.25, 100);
+    scene.fog = new THREE.Fog(0x000000, 0.01, 100);
 
   // Light =============================================================
     var topLight = new THREE.DirectionalLight(0xffffff);
@@ -106,13 +134,7 @@ function init() {
     var ambient = new THREE.AmbientLight(0xFFFFFF);
     scene.add(ambient);
 	
-
-
-  // CUBE==========================================
-    // 立方体
-    var boxGeometry = new THREE.BoxGeometry( 0.4, 0.4, 15 );
-    var boxMaterial = new THREE.MeshStandardMaterial( {color: 0xffffff} );
-
+  // Particle==========================================
 
     var particleMaterial1 = new THREE.MeshStandardMaterial( {color: ctrl.f1_color1});
     var particleMaterial2 = new THREE.MeshStandardMaterial( {color: ctrl.f1_color2});
@@ -129,111 +151,187 @@ function init() {
       particleCube[i].position.y = ( Math.random() - 0.5 ) * 130;
       scene.add(particleCube[i]);
     }
+  // Spiral==========================================
+    var spiralCount = ctrl.f3_count;　// 生成するcubeの数
+    var spiral = [];
+    var spiralGeometry = new THREE.BoxGeometry( 1, 10, 1 );    
+    spiralGeometry.verticesNeedUpdate = true;
+    spiralGeometry.elementsNeedUpdate = true;
+    spiralGeometry.morphTargetsNeedUpdate = true;
+    spiralGeometry.uvsNeedUpdate = true;
+    spiralGeometry.normalsNeedUpdate = true;
+    spiralGeometry.colorsNeedUpdate = true;
+    spiralGeometry.tangentsNeedUpdate = true;
+    var spiralMaterial = new THREE.MeshStandardMaterial( {color: 0xffffff} );    
+    for(var i = 0; i < spiralCount; i++) {
+      
+      spiral[i] = new THREE.Mesh( spiralGeometry, spiralMaterial);
+      spiral[i].geometry.translate(0.5,0,0);
+      spiral[i].rotation.z = Math.degrees((i / spiralCount)* 360);
 
-    var spiralCubeCount = 50;　// 生成するcubeの数
-    var spiralCube = [];
-    for(var i = 0; i < spiralCubeCount; i++) {
-      spiralCube[i] = new THREE.Mesh( boxGeometry, boxMaterial);
-      // spiralCube[i].castShadow = true;
-      // spiralCube[i].rotation.x = Math.cos(i * 2 * Math.PI /spiralCubeCount);
-      // spiralCube[i].rotation.y = Math.cos(i * 2 * Math.PI /spiralCubeCount);
-      spiralCube[i].position.x = Math.cos(i * 2 * Math.PI /spiralCubeCount) * 20 ;
-      spiralCube[i].position.y = Math.sin(i * 2 * Math.PI /spiralCubeCount) * 20 ;
-      scene.add(spiralCube[i]);
+      
+      // spiral[i].rotation.x = Math.cos(i * 2 * Math.PI /spiralCount);
+      // spiral[i].rotation.y = Math.cos(i * 2 * Math.PI /spiralCount);
+
+      // spiral[i].position.x = Math.cos(i * 2 * Math.PI /spiralCount) * 20 * ctrl.f3_size ;
+      // spiral[i].position.y = Math.sin(i * 2 * Math.PI /spiralCount) * 20 * ctrl.f3_size ;
+      
+      // spiral[i].position.x = 10 ;
+      
+      scene.add(spiral[i]);
+
+
     }
 
-
-    var ringGeometry = new THREE.TorusBufferGeometry( 5, 0.4, 8, 32 );
-    var material = new THREE.MeshPhongMaterial( { 
-      color: 0xffff00,
+  // Ring==========================================
+    var ringGeometry = new THREE.TorusBufferGeometry( ctrl.f2_size, ctrl.f2_width, 8, ctrl.f2_Segments );
+    var ringMaterial = new THREE.MeshPhongMaterial( { 
+      color: ctrl.f2_color,
       flatShading:true
     } );
-    var ring = new THREE.Mesh( ringGeometry, material );
+    var ring = new THREE.Mesh( ringGeometry, ringMaterial );
 
-
-    var ringCount = 5;　// 生成するcubeの数
+    var ringCount = ctrl.f2_count;　// 生成するcubeの数
     var ring = [];
-    for(var i = 0; i < spiralCubeCount; i++) {
-      ring[i] = new THREE.Mesh( ringGeometry, material );
+    for(var i = 0; i < ringCount; i++) {
+      ring[i] = new THREE.Mesh( ringGeometry, ringMaterial );
       scene.add(ring[i]);
     }
 
-  // Object ____________________________________________________
+  //====================================================================================
+  // Anim ==============================================================================
+  //====================================================================================
+    function anim(){
 
-  function anim(){
+      // boxMesh2.position.z = ((time + 0.5)%1) * 200;
+      // textMesh.position.x = ctrl.posX;
+      // textMesh.scale.set(ctrl.size,ctrl.size,ctrl.size);
+      // textMesh.position.y = (ctrl.size * -10) +3;
+      // scene.rotation.y = Math.tween.Cubic.easeInOut(time,0,1,1) * ( Math.PI / 180 ) *360 ;    
 
-    // boxMesh2.position.z = ((time + 0.5)%1) * 200;
-    // textMesh.position.x = ctrl.posX;
-    // textMesh.scale.set(ctrl.size,ctrl.size,ctrl.size);
-    // textMesh.position.y = (ctrl.size * -10) +3;
-    // scene.rotation.y = Math.tween.Cubic.easeInOut(time,0,1,1) * ( Math.PI / 180 ) *360 ;    
-
-
-    for(var i = 0; i < particleCubeCount; i++) {
-      particleCube[i].scale.x = ctrl.f1_sizeX;
-      particleCube[i].scale.y = ctrl.f1_sizeY;
-      particleCube[i].scale.z = ctrl.f1_sizeZ;
-      // scene.add(particleCube[i]);
-    }
-
-    for(var i = 0; i < spiralCubeCount; i++) {
-      // spiralCube[i].rotation.y += i / 25000 * Math.PI;
-      // spiralCube[i].rotation.x += i / 25000 * Math.PI;
-      spiralCube[i].position.z = ((time + i/spiralCubeCount)%1) * 100;
-    }
-
-
-    for(var i = 0; i < particleCubeCount; i++) {
-      // spiralCube[i].rotation.y += i / 25000 * Math.PI;
-      // spiralCube[i].rotation.x += i / 25000 * Math.PI;
-      particleCube[i].position.z = ((time + i/particleCubeCount)%1) * 100;
-    }
-
-    for(var i = 0; i < ringCount; i++) {
-      ring[i].position.z = ((time + i/ringCount)%1) * 100;
-    }
-
-    // camera shake ========
-    // camera.position.x = Math.sin(time * 6.25)* 4;
-    // camera.position.y = Math.sin(time * 6.25)* 5;
-  }
-
-
-
-
-
-  function updatePar(){
-    particleMaterial1 = new THREE.MeshStandardMaterial( {color: ctrl.f1_color1});
-    particleMaterial2 = new THREE.MeshStandardMaterial( {color: ctrl.f1_color2});
-
-
-
-    particleMaterial1.needsUpdate = true;
-    particleMaterial2.needsUpdate = true;
-    for(var i = 0; i < particleCubeCount; i++) {
-      scene.remove(particleCube[i]);
-    }
-    particleCubeCount = ctrl.f1_count;　// particleの数を更新
-    for(var i = 0; i < particleCubeCount; i++) {
-      if(i % 2 == 0){
-        particleCube[i] = new THREE.Mesh( particleBoxGeometry, particleMaterial1 );
-      }else{
-        particleCube[i] = new THREE.Mesh( particleBoxGeometry, particleMaterial2 );
+      for(var i = 0; i < particleCubeCount; i++) {
+        particleCube[i].scale.x = ctrl.f1_sizeX;
+        particleCube[i].scale.y = ctrl.f1_sizeY;
+        particleCube[i].scale.z = ctrl.f1_sizeZ;
       }
-      particleCube[i].position.x = ( Math.random() - 0.5 ) * 130;
-      particleCube[i].position.y = ( Math.random() - 0.5 ) * 130;
-      scene.add(particleCube[i]);
+
+      for(var i = 0; i < spiralCount; i++) {
+        // spiral[i].rotation.y += i / 25000 * Math.PI;
+        // spiral[i].rotation.x += i / 25000 * Math.PI;
+        spiral[i].position.z = ((time + i/spiralCount)%1) * 100;
+      }
+
+      for(var i = 0; i < particleCubeCount; i++) {
+        // spiralCube[i].rotation.y += i / 25000 * Math.PI;
+        // spiralCube[i].rotation.x += i / 25000 * Math.PI;
+        particleCube[i].position.z = ((time + i/particleCubeCount)%1) * 100;
+      }
+
+      for(var i = 0; i < ringCount; i++) {
+        ring[i].position.z = ((time + i/Math.floor(ringCount))%1) * 100;
+      }
+
+      // camera shake ========
+      // camera.position.x = Math.sin(time * 6.25)* 4;
+      // camera.position.y = Math.sin(time * 6.25)* 5;
     }
-  }
-  f1_count.onChange (function(value){ updatePar(); });
-  f1_color1.onChange(function(value){ updatePar(); });
-  f1_color2.onChange(function(value){ updatePar(); });
+
+    function updatePar(){
+      particleMaterial1 = new THREE.MeshStandardMaterial( {color: ctrl.f1_color1});
+      particleMaterial2 = new THREE.MeshStandardMaterial( {color: ctrl.f1_color2});
+
+      particleMaterial1.needsUpdate = true;
+      particleMaterial2.needsUpdate = true;
+      for(var i = 0; i < particleCubeCount; i++) {
+        scene.remove(particleCube[i]);
+      }
+      particleCubeCount = ctrl.f1_count;　// particleの数を更新
+      for(var i = 0; i < particleCubeCount; i++) {
+        if(i % 2 == 0){
+          particleCube[i] = new THREE.Mesh( particleBoxGeometry, particleMaterial1 );
+        }else{
+          particleCube[i] = new THREE.Mesh( particleBoxGeometry, particleMaterial2 );
+        }
+        particleCube[i].position.x = ( Math.random() - 0.5 ) * 130;
+        particleCube[i].position.y = ( Math.random() - 0.5 ) * 130;
+        scene.add(particleCube[i]);
+      }
+    }
+    f1_count.onChange (function(value){ updatePar(); });
+    f1_color1.onChange(function(value){ updatePar(); });
+    f1_color2.onChange(function(value){ updatePar(); });
+
+    function updateRing(){
+      ringGeometry = new THREE.TorusBufferGeometry( ctrl.f2_size, ctrl.f2_width, 8, ctrl.f2_Segments );
+      ringGeometry.verticesNeedUpdate = true;
+      ringGeometry.elementsNeedUpdate = true;
+      ringGeometry.morphTargetsNeedUpdate = true;
+      ringGeometry.uvsNeedUpdate = true;
+      ringGeometry.normalsNeedUpdate = true;
+      ringGeometry.colorsNeedUpdate = true;
+      ringGeometry.tangentsNeedUpdate = true;
+      
+      ringMaterial = new THREE.MeshStandardMaterial( {color: ctrl.f2_color, flatShading:true});
+      ringMaterial.needsUpdate = true;
+      for(var i = 0; i < ringCount; i++) {
+        scene.remove(ring[i]);
+      }
+      ringCount = ctrl.f2_count;　// particleの数を更新
+      for(var i = 0; i < ringCount; i++) {
+        ring[i] = new THREE.Mesh( ringGeometry, ringMaterial );
+        ring[i].rotation.z = Math.radians(90);
+        scene.add(ring[i]);
+      }
+    }
+    f2_count.onChange (function(value){ updateRing(); });
+    f2_size.onChange (function(value){ updateRing(); });
+    f2_width.onChange (function(value){ updateRing(); });
+    f2_Segments.onChange (function(value){ updateRing(); });
+    f2_color.onChange (function(value){ updateRing(); });
+    
+
+    function updateSpiral(){
+      spiralMaterial = new THREE.MeshStandardMaterial( {color: ctrl.f1_color1});
+      spiralMaterial.needsUpdate = true;
+      for(var i = 0; i < spiralCount; i++) {
+        scene.remove(spiral[i]);
+      }
+      spiralCount = ctrl.f3_count;　// spiralの数を更新
+      spiralGeometry = new THREE.BoxGeometry( 10,0.5, 0.5 );
+      for(var i = 0; i < spiralCount; i++) {
+        spiral[i] = new THREE.Mesh( spiralGeometry, spiralMaterial );
+        spiral[i].geometry.translate(0.05,0,0);
+        spiral[i].rotation.z = Math.degrees((i / spiralCount)* 360);
+      
+        
+        // spiral[i].position.x = Math.cos(i * 2 * Math.PI /spiralCount) * 20 * ctrl.f3_size ;
+        // spiral[i].position.y = Math.sin(i * 2 * Math.PI /spiralCount) * 20 * ctrl.f3_size ;
+
+        // spiral[i].rotation.x = Math.cos(i * 2 * Math.PI /spiralCount);
+        // spiral[i].rotation.x = 2;
+        // spiral[i].scale.y = Math.radians(40)*11;
+
+        // spiral[i].geometry.translate(0.05,0,0);
+        // spiral[i].position.x = 10 ;
+        spiral[i].rotation.z = Math.degrees((i / spiralCount)* 360);
+        // spiral[i].scale.x = ctrl.f3_size ;
+        // spiral[i].scale.y = ctrl.f3_size ;
+        // spiral[i].scale.z = ctrl.f3_size ;
+        
+        scene.add(spiral[i]);
+      }
+    }
+    f3_count.onChange (function(value){ updateSpiral(); });
+    f3_size.onChange (function(value){ updateSpiral(); });
+    // f1_color1.onChange(function(value){ updateSpiral(); });
+    // f1_color2.onChange(function(value){ updateSpiral(); });
 
 
 
 
 
-  var exportStart = false;
+
+    var exportStart = false;
 
   // Run ________________________________________________________
   function render(){
