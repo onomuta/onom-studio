@@ -39,19 +39,15 @@ function init() {
       
       this.f3_count = 200;
       this.f3_size = 1;
+      this.f3_rotate = 0;
       this.f3_color = "#ffffff";
       
 
-      
-      this.TEXT = "ELEMOG";   
-      this.size = 1.5;
-
-      this.color2 = "#ffffff";
       this.f0_duration = 600;
+      this.f0_cameraSpin = false;
+
 
       this.export = function() { exportFlg = true};
-
-
 
       this.save = function() { save()};
       this.load = function() { load()};
@@ -82,19 +78,15 @@ function init() {
     var f3 = gui.addFolder('Spiral');
     f3.open();
     var f3_count = f3.add(ctrl, 'f3_count', 0, 1000).listen();
-    var f3_size = f3.add(ctrl, 'f3_size', 0.1, 20).listen();
+    var f3_rotate = f3.add(ctrl, 'f3_rotate', 0, 180).listen();
+    var f3_size = f3.add(ctrl, 'f3_size', 0.1, 10).listen();
     var f3_color = f3.addColor(ctrl, 'f3_color').listen();
-    
+  
 
-
-    // var controllerTEXT = gui.add(ctrl, 'TEXT');
-    // gui.add(ctrl, 'size', 0.5, 2);
-    // var controllerCOLOR1 = gui.addColor(ctrl, 'color');
-    // var controllerCOLOR2 = gui.addColor(ctrl, 'color2');
-    // gui.add(ctrl, 'speed', 0, 2);
 
     var f0 = gui.addFolder('Export');
     f0.open();
+    f0.add(ctrl, 'f0_cameraSpin');    
     f0.add(ctrl, 'f0_duration', 10, 600);
     f0.add(ctrl, 'export');
     f0.add(ctrl, 'save');
@@ -141,7 +133,7 @@ function init() {
     var near   = 0.01;
     var far    = 4000;
     var camera = new THREE.PerspectiveCamera( fov, aspect, near, far );
-    camera.position.set( 0, 0, 100 );
+    camera.position.set( 0, 0, 0 );
     camera.lookAt(new THREE.Vector3(0, 0, 0));
     
     scene.fog = new THREE.Fog(0x000000, 0.01, 80);
@@ -156,9 +148,7 @@ function init() {
     var ambient = new THREE.AmbientLight(0xFFFFFF);
     scene.add(ambient);
 	
-  // Particle==========================================
-
-    var particleMaterial1 = new THREE.MeshStandardMaterial( {color: ctrl.f1_color1});
+  // Particle========================================Basicr particleMaterial1 = new THREE.MeshStandardMaterial( {color: ctrl.f1_color1});
     var particleMaterial2 = new THREE.MeshStandardMaterial( {color: ctrl.f1_color2});
     var particleBoxGeometry = new THREE.BoxGeometry( 1, 1, 1 );    
     var particleCubeCount = ctrl.f1_count;　// 生成するcubeの数
@@ -186,7 +176,7 @@ function init() {
     spiralGeometry.normalsNeedUpdate = true;
     spiralGeometry.colorsNeedUpdate = true;
     spiralGeometry.tangentsNeedUpdate = true;
-    var spiralMaterial = new THREE.MeshStandardMaterial( {color: 0xffffff} );    
+    var spiralMaterial = new THREE.MeshBasicMaterial( {color: 0xffffff} );    
     for(var i = 0; i < spiralCount; i++) {
       
       spiral[i] = new THREE.Mesh( spiralGeometry, spiralMaterial );
@@ -257,12 +247,16 @@ function init() {
       // camera shake ========
       // camera.position.x = Math.sin(time * 6.25)* 4;
       // camera.position.y = Math.sin(time * 6.25)* 5;
-      camera.rotation.z = Math.radians(time * 360);
+      if(ctrl.f0_cameraSpin == true){
+        camera.rotation.z = Math.radians(time * 360);        
+      }else{
+        camera.rotation.z = 0;      
+      }
     }
 
     function updatePar(){
-      particleMaterial1 = new THREE.MeshStandardMaterial( {color: ctrl.f1_color1});
-      particleMaterial2 = new THREE.MeshStandardMaterial( {color: ctrl.f1_color2});
+      particleMaterial1 = new THREE.MeshBasicMaterial( {color: ctrl.f1_color1});
+      particleMaterial2 = new THREE.MeshBasicMaterial( {color: ctrl.f1_color2});
 
       particleMaterial1.needsUpdate = true;
       particleMaterial2.needsUpdate = true;
@@ -295,7 +289,7 @@ function init() {
       ringGeometry.colorsNeedUpdate = true;
       ringGeometry.tangentsNeedUpdate = true;
       
-      ringMaterial = new THREE.MeshStandardMaterial( {color: ctrl.f2_color, flatShading:true});
+      ringMaterial = new THREE.MeshBasicMaterial( {color: ctrl.f2_color, flatShading:true});
       ringMaterial.needsUpdate = true;
       for(var i = 0; i < ringCount; i++) {
         scene.remove(ring[i]);
@@ -315,7 +309,7 @@ function init() {
     
 
     function updateSpiral(){
-      spiralMaterial = new THREE.MeshStandardMaterial( {color: ctrl.f3_color});
+      spiralMaterial = new THREE.MeshBasicMaterial( {color: ctrl.f3_color});
       spiralMaterial.needsUpdate = true;
       for(var i = 0; i < spiralCount; i++) {
         scene.remove(spiral[i]);
@@ -323,11 +317,15 @@ function init() {
       spiralCount = Math.floor(ctrl.f3_count);　// spiralの数を更新
       spiralGeometry = new THREE.BoxGeometry( 10,0.5, 0.5 );
       spiralGeometry = new THREE.BoxGeometry( 0.5, 5, 0.5 );    
-      spiralGeometry = new THREE.BoxGeometry( 0.2, 0.2, 0.2 );    
+      spiralGeometry = new THREE.BoxGeometry( 0.2, ctrl.f3_size, 0.2 );    
     
       for(var i = 0; i < spiralCount; i++) {
         spiral[i] = new THREE.Mesh( spiralGeometry, spiralMaterial );
-        spiral[i].rotation.z = Math.radians((i / (spiralCount))* 720 *32);
+        spiral[i].geometry.rotateX(Math.radians(ctrl.f3_rotate));
+        spiral[i].rotation.z = Math.radians((i / (spiralCount))* 360 * 100);
+        
+        // spiral[i].geometry.translate(0.05,0,0);
+        
         spiral[i].translateX(5);
       
         
@@ -340,15 +338,14 @@ function init() {
 
         // spiral[i].geometry.translate(0.05,0,0);
         // spiral[i].position.x = 10 ;
-        // spiral[i].rotation.z = Math.degrees((i / (spiralCount -1)* 360);
-        // spiral[i].scale.x = ctrl.f3_size ;
-        spiral[i].scale.z = ctrl.f3_size ;
+        // spiral[i].scale.y = ctrl.f3_size ;
         // spiral[i].scale.z = ctrl.f3_size ;
-        
+
         scene.add(spiral[i]);
       }
     }
     f3_count.onChange (function(value){ updateSpiral(); });
+    f3_rotate.onChange (function(value){ updateSpiral(); });
     f3_size.onChange (function(value){ updateSpiral(); });
     f3_color.onChange (function(value){ updateSpiral(); });
     // f1_color1.onChange(function(value){ updateSpiral(); });
@@ -360,6 +357,9 @@ function init() {
 
 
     var exportStart = false;
+
+    scene.position.set( 0, 0, -50 );
+    
 
   // Run ________________________________________________________
   function render(){
@@ -431,7 +431,8 @@ function init() {
   function setData(){
     data = {
       f0 : {
-        duration : ctrl.f0_duration
+        duration : ctrl.f0_duration,
+        cameraSpin : ctrl.f0_cameraSpin
       },
       f1 : {
         count : ctrl.f1_count,
@@ -480,6 +481,7 @@ function init() {
 
 
     ctrl.f0_duration = data.f0.duration;
+    ctrl.f0_cameraSpin = data.f0.cameraSpin;
     
     
 
