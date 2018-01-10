@@ -45,6 +45,7 @@ function init() {
 
       this.f0_duration = 600;
       this.f0_cameraSpin = false;
+      this.f0_cameraPosition = 0;
 
 
       this.export = function() { exportFlg = true};
@@ -86,7 +87,8 @@ function init() {
 
     var f0 = gui.addFolder('Export');
     f0.open();
-    f0.add(ctrl, 'f0_cameraSpin');    
+    f0.add(ctrl, 'f0_cameraSpin');  
+    var f0_cameraPosition = f0.add(ctrl, 'f0_cameraPosition', -100, 100);  
     f0.add(ctrl, 'f0_duration', 10, 600);
     f0.add(ctrl, 'export');
     f0.add(ctrl, 'save');
@@ -133,10 +135,10 @@ function init() {
     var near   = 0.01;
     var far    = 4000;
     var camera = new THREE.PerspectiveCamera( fov, aspect, near, far );
-    camera.position.set( 0, 0, 0 );
+    camera.position.set( 0, 0, 10 );
     camera.lookAt(new THREE.Vector3(0, 0, 0));
     
-    scene.fog = new THREE.Fog(0x000000, 0.01, 80);
+    scene.fog = new THREE.Fog(0x000000, 0, 50);
 
   // Light =============================================================
     var topLight = new THREE.DirectionalLight(0xffffff);
@@ -356,9 +358,31 @@ function init() {
 
 
 
+
+
+
+
+    function updateCamera(){
+      // camera.position.set( 0, ctrl.f0_cameraPosition, 0 );
+
+      camera.lookAt(new THREE.Vector3(0, ctrl.f0_cameraPosition, 0));
+    
+    }
+    f0_cameraPosition.onChange (function(value){ updateCamera(); });
+
+
+
+
+
+
+   
+
+
+
     var exportStart = false;
 
     scene.position.set( 0, 0, -50 );
+
     
 
   // Run ________________________________________________________
