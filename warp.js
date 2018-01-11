@@ -24,33 +24,33 @@ function init() {
 
   // GUI ===============================================================
     var ctrl = new function() {
-      this.f1_count = 0;  /////////////
+      this.f1_count = 1000;
       this.f1_sizeX = 1.0;
       this.f1_sizeY = 1.0;
       this.f1_sizeZ = 10.0;
       this.f1_color1 = "#ffffff";
       this.f1_color2 = "#ff0000";
 
-      this.f2_count = 0; /////////////
+      this.f2_count = 0;
       this.f2_size = 5;
       this.f2_width = 0.5;
       this.f2_color = "#ffffff";
       this.f2_segments = 8;
       
-      this.f3_count = 200;
+      this.f3_count = 0;
       this.f3_size = 1;
       this.f3_rotate = 0;
       this.f3_color = "#ffffff";
       
       this.f0_duration = 600;
       this.f0_cameraSpin = false;
+      this.f0_cameraShake = false;
       this.f0_cameraPosition = 0;
 
       this.EXPORT = function() { makeName(); exportFlg = true};
 
       this.save_json = function() { save()};
       this.load_json = function() { load()};
-      
     };
 
     var gui = new dat.GUI();
@@ -66,9 +66,9 @@ function init() {
     
     var f2 = gui.addFolder('Ring');
     f2.open();
-    var f2_count = f2.add(ctrl, 'f2_count', 0, 10).listen();
+    var f2_count = f2.add(ctrl, 'f2_count', 0, 20).listen();
     var f2_size = f2.add(ctrl, 'f2_size', 0, 15).listen();
-    var f2_width = f2.add(ctrl, 'f2_width', 0.1, 4).listen();
+    var f2_width = f2.add(ctrl, 'f2_width', 0.1, 2).listen();
     var f2_segments = f2.add(ctrl, 'f2_segments', 3, 64).listen();
     var f2_color = f2.addColor(ctrl, 'f2_color').listen();
     
@@ -79,11 +79,10 @@ function init() {
     var f3_size = f3.add(ctrl, 'f3_size', 0.1, 10).listen();
     var f3_color = f3.addColor(ctrl, 'f3_color').listen();
   
-
-
     var f0 = gui.addFolder('Export');
     f0.open();
-    f0.add(ctrl, 'f0_cameraSpin');  
+    f0.add(ctrl, 'f0_cameraSpin');
+    f0.add(ctrl, 'f0_cameraShake');
     var f0_cameraPosition = f0.add(ctrl, 'f0_cameraPosition', -100, 100);  
     f0.add(ctrl, 'f0_duration', 10, 600);
     f0.add(ctrl, 'EXPORT');
@@ -93,41 +92,20 @@ function init() {
     f.add(ctrl, 'save_json');
     f.add(ctrl, 'load_json');
 
-
-  
-
   // Renderer =========================================================
-
-
-
-    var myCanvas = document.getElementById('myCanvas');
-  
-  
-  
+    var myCanvas = document.getElementById('myCanvas');  
     var renderer = new THREE.WebGLRenderer({
       canvas: myCanvas,
       antialias: true
     });
-
-
-
-    myCanvas.style.width = "#BBCCDD";
     
-
-
-
     var ctx = document.getElementById('myCanvas2').getContext('2d');
-    ctx.font = "48px serif";
-  
+    ctx.font = "30px san-serif";
     renderer.setClearColor(new THREE.Color(0x000000));
-    renderer.setSize(canvasWidth, canvasHeight);
-    
-    renderer.shadowMap.enabled = true;
+    renderer.setSize(canvasWidth, canvasHeight);    
+    // renderer.shadowMap.enabled = true;
 		renderer.domElement.id = 'three';
-    // document.body.appendChild( renderer.domElement );
 
-
-  
   // Camera ===========================================================
     var fov    = 120;
     var aspect = width / height;
@@ -140,66 +118,35 @@ function init() {
     scene.fog = new THREE.Fog(0x000000, 0, 50);
 
   // Light =============================================================
-    var topLight = new THREE.DirectionalLight(0xffffff);
-    topLight.position.set(30, 30, 100);
-    scene.add( topLight );
-    scene.add( topLight );
+    // var topLight = new THREE.DirectionalLight(0xffffff);
+    // topLight.position.set(30, 30, 100);
+    // scene.add( topLight );
+    // scene.add( topLight );
     
     // 部屋全体を照らすライト
-    var ambient = new THREE.AmbientLight(0xFFFFFF);
-    scene.add(ambient);
+    // var ambient = new THREE.AmbientLight(0xFFFFFF);
+    // scene.add(ambient);
 	
-  // Particle========================================Basicr particleMaterial1 = new THREE.MeshStandardMaterial( {color: ctrl.f1_color1});
-    var particleMaterial2 = new THREE.MeshStandardMaterial( {color: ctrl.f1_color2});
-    var particleBoxGeometry = new THREE.BoxGeometry( 1, 1, 1 );    
-    var particleCubeCount = ctrl.f1_count;　// 生成するcubeの数
+  // Particle========================================
+    var particleMaterial1;
+    var particleMaterial2;
+    var particleBoxGeometry = new THREE.BoxGeometry( 1, 1, 1 );
+    var particleCubeCount;
     var particleCube = [];
-    for(var i = 0; i < particleCubeCount; i++) {
-      if(i % 2 == 0 ){
-        particleCube[i] = new THREE.Mesh( particleBoxGeometry, particleMaterial1 );
-      }else{
-        particleCube[i] = new THREE.Mesh( particleBoxGeometry, particleMaterial2 );
-      }
-      particleCube[i].position.x = ( Math.random() - 0.5 ) * 130;
-      particleCube[i].position.y = ( Math.random() - 0.5 ) * 130;
-      scene.add(particleCube[i]);
-    }
+    updatePar();
   // Spiral==========================================
-    // var spiralCount = ctrl.f3_count;　// 生成するcubeの数
-    var spiralCount = Math.floor(ctrl.f3_count);　// spiralの数を更新
-    
+    var spiralCount;
     var spiral = [];
-    var spiralGeometry = new THREE.BoxGeometry( 0.2, 0.2, 0.2 );
-    spiralGeometry.verticesNeedUpdate = true;
-    spiralGeometry.elementsNeedUpdate = true;
-    spiralGeometry.morphTargetsNeedUpdate = true;
-    spiralGeometry.uvsNeedUpdate = true;
-    spiralGeometry.normalsNeedUpdate = true;
-    spiralGeometry.colorsNeedUpdate = true;
-    spiralGeometry.tangentsNeedUpdate = true;
-    var spiralMaterial = new THREE.MeshBasicMaterial( {color: 0xffffff} );    
-    for(var i = 0; i < spiralCount; i++) {
-      spiral[i] = new THREE.Mesh( spiralGeometry, spiralMaterial );
-      spiral[i].rotation.z = Math.degrees((i / spiralCount)* 360);
-      spiral[i].translateX(5);
-      scene.add(spiral[i]);
-    }
+    var spiralGeometry;
+    var spiralMaterial;    
+    updateSpiral();
 
-  // Ring==========================================
-    var ringGeometry = new THREE.TorusBufferGeometry( ctrl.f2_size, ctrl.f2_width, 8, ctrl.f2_segments );
-    var ringMaterial = new THREE.MeshPhongMaterial( { 
-      color: ctrl.f2_color,
-      flatShading:true
-    } );
-    var ring = new THREE.Mesh( ringGeometry, ringMaterial );
-
-    var ringCount = ctrl.f2_count;　// 生成するcubeの数
+  // Ring ==========================================
+    var ringGeometry;
+    var ringMaterial;
+    var ringCount;
     var ring = [];
-    for(var i = 0; i < ringCount; i++) {
-      ring[i] = new THREE.Mesh( ringGeometry, ringMaterial );
-      scene.add(ring[i]);
-    }
-
+    updateRing();
   //====================================================================================
   // Anim ==============================================================================
   //====================================================================================
@@ -228,8 +175,14 @@ function init() {
       }
 
       // camera shake ========
-      // camera.position.x = Math.sin(time * 6.25)* 4;
-      // camera.position.y = Math.sin(time * 6.25)* 5;
+      if(ctrl.f0_cameraShake == true){
+        camera.position.x = Math.sin(time * 4 * Math.PI);
+        camera.position.y = Math.sin(time * 6 * Math.PI);       
+      }else{
+        camera.position.x = 0;
+        camera.position.y = 0;   
+      }
+      
       if(ctrl.f0_cameraSpin == true){
         camera.rotation.z = Math.radians(time * 360);        
       }else{
@@ -240,7 +193,6 @@ function init() {
     function updatePar(){
       particleMaterial1 = new THREE.MeshBasicMaterial( {color: ctrl.f1_color1});
       particleMaterial2 = new THREE.MeshBasicMaterial( {color: ctrl.f1_color2});
-
       particleMaterial1.needsUpdate = true;
       particleMaterial2.needsUpdate = true;
       for(var i = 0; i < particleCubeCount; i++) {
@@ -262,16 +214,29 @@ function init() {
     f1_color1.onChange(function(value){ updatePar(); });
     f1_color2.onChange(function(value){ updatePar(); });
 
+    function updateSpiral(){
+      spiralMaterial = new THREE.MeshBasicMaterial( {color: ctrl.f3_color});
+      spiralMaterial.needsUpdate = true;
+      for(var i = 0; i < spiralCount; i++) {
+        scene.remove(spiral[i]);
+      }
+      spiralCount = Math.floor(ctrl.f3_count);
+      spiralGeometry = new THREE.BoxGeometry( 0.2, ctrl.f3_size, 0.2 );    
+      for(var i = 0; i < spiralCount; i++) {
+        spiral[i] = new THREE.Mesh( spiralGeometry, spiralMaterial );
+        spiral[i].geometry.rotateX(Math.radians(ctrl.f3_rotate));
+        spiral[i].rotation.z = Math.radians((i / (spiralCount))* 360 * 100);  
+        spiral[i].translateX(5);
+        scene.add(spiral[i]);
+      }
+    }
+    f3_count.onChange (function(value){ updateSpiral(); });
+    f3_rotate.onChange (function(value){ updateSpiral(); });
+    f3_size.onChange (function(value){ updateSpiral(); });
+    f3_color.onChange (function(value){ updateSpiral(); });
+
     function updateRing(){
       ringGeometry = new THREE.TorusBufferGeometry( ctrl.f2_size, ctrl.f2_width, 8, ctrl.f2_segments );
-      ringGeometry.verticesNeedUpdate = true;
-      ringGeometry.elementsNeedUpdate = true;
-      ringGeometry.morphTargetsNeedUpdate = true;
-      ringGeometry.uvsNeedUpdate = true;
-      ringGeometry.normalsNeedUpdate = true;
-      ringGeometry.colorsNeedUpdate = true;
-      ringGeometry.tangentsNeedUpdate = true;
-      
       ringMaterial = new THREE.MeshBasicMaterial( {color: ctrl.f2_color, flatShading:true});
       ringMaterial.needsUpdate = true;
       for(var i = 0; i < ringCount; i++) {
@@ -290,87 +255,32 @@ function init() {
     f2_segments.onChange (function(value){ updateRing(); });
     f2_color.onChange (function(value){ updateRing(); });
     
-
-    function updateSpiral(){
-      spiralMaterial = new THREE.MeshBasicMaterial( {color: ctrl.f3_color});
-      spiralMaterial.needsUpdate = true;
-      for(var i = 0; i < spiralCount; i++) {
-        scene.remove(spiral[i]);
-      }
-      spiralCount = Math.floor(ctrl.f3_count);　// spiralの数を更新
-      spiralGeometry = new THREE.BoxGeometry( 10,0.5, 0.5 );
-      spiralGeometry = new THREE.BoxGeometry( 0.5, 5, 0.5 );    
-      spiralGeometry = new THREE.BoxGeometry( 0.2, ctrl.f3_size, 0.2 );    
-    
-      for(var i = 0; i < spiralCount; i++) {
-        spiral[i] = new THREE.Mesh( spiralGeometry, spiralMaterial );
-        spiral[i].geometry.rotateX(Math.radians(ctrl.f3_rotate));
-        spiral[i].rotation.z = Math.radians((i / (spiralCount))* 360 * 100);
-        
-        // spiral[i].geometry.translate(0.05,0,0);
-        
-        spiral[i].translateX(5);
-      
-        
-        // spiral[i].position.x = Math.cos(i * 2 * Math.PI /spiralCount) * 20 * ctrl.f3_size ;
-        // spiral[i].position.y = Math.sin(i * 2 * Math.PI /spiralCount) * 20 * ctrl.f3_size ;
-
-        // spiral[i].rotation.x = Math.cos(i * 2 * Math.PI /spiralCount);
-        // spiral[i].rotation.x = 2;
-        // spiral[i].scale.y = Math.radians(40)*11;
-
-        // spiral[i].geometry.translate(0.05,0,0);
-        // spiral[i].position.x = 10 ;
-        // spiral[i].scale.y = ctrl.f3_size ;
-        // spiral[i].scale.z = ctrl.f3_size ;
-
-        scene.add(spiral[i]);
-      }
-    }
-    f3_count.onChange (function(value){ updateSpiral(); });
-    f3_rotate.onChange (function(value){ updateSpiral(); });
-    f3_size.onChange (function(value){ updateSpiral(); });
-    f3_color.onChange (function(value){ updateSpiral(); });
-    // f1_color1.onChange(function(value){ updateSpiral(); });
-    // f1_color2.onChange(function(value){ updateSpiral(); });
-
     function updateCamera(){
-      // camera.position.set( 0, ctrl.f0_cameraPosition, 0 );
       camera.lookAt(new THREE.Vector3(0, ctrl.f0_cameraPosition, 0));
-    
     }
     f0_cameraPosition.onChange (function(value){ updateCamera(); });
-
     var exportStart = false;
-
     scene.position.set( 0, 0, -50 );
-
-    
 
   // Run ________________________________________________________
   function render(){
     requestAnimationFrame(render);     
     duration = Math.round(ctrl.f0_duration);
-    
     if(exportFlg == true){
       if(exportStart == false){
         frame = 0;
         exportStart = true;
       }
     }
-
     time = (frame / duration);  
-
     if(time >= 1){
       frame = 0;
       exportFlg = false;
       exportStart = false;
     }
-
     anim();    
     renderer.render(scene, camera);
     saveFrame();
-    
     frame++;
   };
   render();
