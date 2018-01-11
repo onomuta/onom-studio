@@ -261,8 +261,9 @@ function init() {
     f0_cameraPosition.onChange (function(value){ updateCamera(); });
     var exportStart = false;
     scene.position.set( 0, 0, -50 );
-
-  // Run ________________________________________________________
+  //====================================================================================
+  // render ============================================================================
+  //====================================================================================
   function render(){
     requestAnimationFrame(render);     
     duration = Math.round(ctrl.f0_duration);

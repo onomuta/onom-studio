@@ -30,7 +30,7 @@ function init() {
       this.color = "#ff0033";
       this.color2 = "#ffffff";
       this.duration = 180;
-      this.export = function() { exportFlg = true};
+      this.EXPORT = function() { makeName(); exportFlg = true};
     };
     var gui = new dat.GUI();
 
@@ -41,7 +41,7 @@ function init() {
     var controllerCOLOR2 = gui.addColor(ctrl, 'color2');
     gui.add(ctrl, 'duration', 10, 600);
 
-    gui.add(ctrl, 'export');
+    gui.add(ctrl, 'EXPORT');
 
     textMaterial1 = new THREE.MeshStandardMaterial( { color: ctrl.color } );
     textMaterial2 = new THREE.MeshStandardMaterial( { color: ctrl.color2 } );
