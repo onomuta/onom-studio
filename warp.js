@@ -48,10 +48,10 @@ function init() {
       this.f0_cameraPosition = 0;
 
 
-      this.export = function() { exportFlg = true};
+      this.EXPORT = function() { exportFlg = true};
 
-      this.save = function() { save()};
-      this.load = function() { load()};
+      this.save_json = function() { save()};
+      this.load_json = function() { load()};
 
 
       
@@ -90,9 +90,12 @@ function init() {
     f0.add(ctrl, 'f0_cameraSpin');  
     var f0_cameraPosition = f0.add(ctrl, 'f0_cameraPosition', -100, 100);  
     f0.add(ctrl, 'f0_duration', 10, 600);
-    f0.add(ctrl, 'export');
-    f0.add(ctrl, 'save');
-    f0.add(ctrl, 'load');
+    f0.add(ctrl, 'EXPORT');
+
+    var f = gui.addFolder('under construction');
+    
+    f.add(ctrl, 'save_json');
+    f.add(ctrl, 'load_json');
 
 
   
