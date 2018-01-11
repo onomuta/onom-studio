@@ -1,6 +1,6 @@
 # three_comp
 
-[https://onomuta.github.io/three_comp/](https://onomuta.github.io/three_comp/)
+[https://onomuta.github.io/onom-studio/](https://onomuta.github.io/onom-studio/)
 
 
 
