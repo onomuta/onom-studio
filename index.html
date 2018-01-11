@@ -23,7 +23,7 @@
 			display: block;
 			width: 100%;
 			padding:20px;
-			font-size: 60px;
+      font-size: 8vw;
 			text-decoration: initial;
 		}
 
@@ -32,25 +32,37 @@
 			width: 100%; /* 横幅 */
 			/* height:100px; */
 			padding:20px;
-			font-size: 60px;
+      font-size: 8vw;
 			text-decoration: initial;
     	color: #000;
 		}
-
 		/* 以下マウスを載せたときのスタイル */
 		.link a:hover {
 			background-color: #000;
-			color:#999; }
-
+			color:#999;
+    }
+    .link .under{
+      font-size: 4vw;
+    }
 	</style>
 </head>
 <body>
 
-	<div class="header" style="">onom-studio Alpha</div>
+	<div class="header">onom-studio</div>
 
 	<div class="link"><a href="warp.html">warp</a></div>
-	<div class="link"><a href="text.html">text (under construction)</a></div>
-	<div class="link"><a href="planet.html">planet (under construction)</a></div>
+	<div class="link">
+    <a href="text.html">
+      text
+      <span class="under">(under construction)</span>
+    </a>
+  </div>
+	<div class="link">
+    <a href="planet.html">
+      planet
+      <span class="under">(under construction)</span>
+    </a>
+  </div>
 
 
 </body>

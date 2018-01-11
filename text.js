@@ -20,30 +20,25 @@ function init() {
 
   // GUI ===============================================================
     var ctrl = new function() {
-      this.TEXT = "ELEMOG";   
-      this.size = 1.5;
-      this.posX = -82;
+      this.TEXT = "Happy!";   
+      this.size = 2;
+      this.posX = -80;
       this.color = "#ff0033";
       this.color2 = "#ffffff";
       this.duration = 180;
-
       this.export = function() { exportFlg = true};
     };
-
     var gui = new dat.GUI();
 
     var controllerTEXT = gui.add(ctrl, 'TEXT');
     gui.add(ctrl, 'posX', -100, 0);
-
     gui.add(ctrl, 'size', 0.5, 2);
     var controllerCOLOR1 = gui.addColor(ctrl, 'color');
     var controllerCOLOR2 = gui.addColor(ctrl, 'color2');
-    // gui.add(ctrl, 'speed', 0, 2);
     gui.add(ctrl, 'duration', 10, 600);
 
     gui.add(ctrl, 'export');
 
-    
     textMaterial1 = new THREE.MeshStandardMaterial( { color: ctrl.color } );
     textMaterial2 = new THREE.MeshStandardMaterial( { color: ctrl.color2 } );
     textMaterials = [textMaterial1,textMaterial2];
@@ -57,8 +52,6 @@ function init() {
     renderer.setSize(canvasWidth, canvasHeight);
     renderer.shadowMap.enabled = true;
 		renderer.domElement.id = 'three';
-    // document.body.appendChild( renderer.domElement );
-    
 
     var textMaterial1 = new THREE.MeshStandardMaterial( { color: ctrl.color } );
     var textMaterial2 = new THREE.MeshStandardMaterial( { color: ctrl.color2 } );
@@ -66,7 +59,6 @@ function init() {
     textMaterial2.needsUpdate = true;
     var textMaterials = [textMaterial1,textMaterial2];
     textMaterials.needsUpdate = true;
-
 
   // TEXTLOAD =========================================================
     // テキストロードしてから開始
@@ -89,8 +81,6 @@ function init() {
   
       render();
     });
-
-
 
   // Camera ===========================================================
     var fov    = 90;
