@@ -14,10 +14,15 @@
 		body{
 			position:absolute;
 			width:100%;
-			height:100%;
       background:#999;
       text-align:center;  
-		}
+      min-height: 100%;
+      display: flex;
+      flex-direction: column; 
+    }
+    .content {
+      flex: 1;
+    }
 		.header{
       background:#000;
     	color: #999;      
@@ -39,29 +44,47 @@
 			background-color: #000;
 			color:#999;
     }
-    .link .under{
+    .link .min{
       font-size: 4vw;
+      display:block
+    }
+    .footer a {
+			display: block;
+			width: 100%;
+			padding:10px;
+      font-size: 2vw;
+			text-decoration: initial;
+    	color: #000;
+		}
+		.footer a:hover {
+			background-color: #000;
+			color:#999;
     }
 	</style>
 </head>
 <body>
+  <div class="content">
+    <div class="header">onom-studio</div>
 
-	<div class="header">onom-studio</div>
-
-	<div class="link"><a href="warp.html">warp</a></div>
-	<div class="link">
-    <a href="text.html">
-      text
-      <span class="under">(under construction)</span>
+    <div class="link"><a href="warp.html">warp</a></div>
+    <div class="link">
+      <a href="text.html">
+        text
+        <span class="min">(under construction)</span>
+      </a>
+    </div>
+    <!-- <div class="link">
+      <a href="planet.html">
+        planet
+        <span class="min">(under construction)</span>
+      </a>
+    </div> -->
+  </div>
+  <div class="footer">
+    <a href="https://twitter.com/onom">
+      @onom
     </a>
   </div>
-	<!-- <div class="link">
-    <a href="planet.html">
-      planet
-      <span class="under">(under construction)</span>
-    </a>
-  </div> -->
-
 
 </body>
 </html>
