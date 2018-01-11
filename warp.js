@@ -42,18 +42,14 @@ function init() {
       this.f3_rotate = 0;
       this.f3_color = "#ffffff";
       
-
       this.f0_duration = 600;
       this.f0_cameraSpin = false;
       this.f0_cameraPosition = 0;
 
-
-      this.EXPORT = function() { exportFlg = true};
+      this.EXPORT = function() { makeName(); exportFlg = true};
 
       this.save_json = function() { save()};
       this.load_json = function() { load()};
-
-
       
     };
 
@@ -183,22 +179,10 @@ function init() {
     spiralGeometry.tangentsNeedUpdate = true;
     var spiralMaterial = new THREE.MeshBasicMaterial( {color: 0xffffff} );    
     for(var i = 0; i < spiralCount; i++) {
-      
       spiral[i] = new THREE.Mesh( spiralGeometry, spiralMaterial );
       spiral[i].rotation.z = Math.degrees((i / spiralCount)* 360);
       spiral[i].translateX(5);
-      
-      // spiral[i].rotation.x = Math.cos(i * 2 * Math.PI /spiralCount);
-      // spiral[i].rotation.y = Math.cos(i * 2 * Math.PI /spiralCount);
-
-      // spiral[i].position.x = Math.cos(i * 2 * Math.PI /spiralCount) * 20 * ctrl.f3_size ;
-      // spiral[i].position.y = Math.sin(i * 2 * Math.PI /spiralCount) * 20 * ctrl.f3_size ;
-      
-      // spiral[i].position.x = 10 ;
-      
       scene.add(spiral[i]);
-
-
     }
 
   // Ring==========================================
@@ -220,12 +204,6 @@ function init() {
   // Anim ==============================================================================
   //====================================================================================
     function anim(){
-
-      // boxMesh2.position.z = ((time + 0.5)%1) * 200;
-      // textMesh.position.x = ctrl.posX;
-      // textMesh.scale.set(ctrl.size,ctrl.size,ctrl.size);
-      // textMesh.position.y = (ctrl.size * -10) +3;
-      // scene.rotation.y = Math.tween.Cubic.easeInOut(time,0,1,1) * ( Math.PI / 180 ) *360 ;    
 
       for(var i = 0; i < particleCubeCount; i++) {
         particleCube[i].scale.x = ctrl.f1_sizeX;
@@ -356,31 +334,12 @@ function init() {
     // f1_color1.onChange(function(value){ updateSpiral(); });
     // f1_color2.onChange(function(value){ updateSpiral(); });
 
-
-
-
-
-
-
-
-
-
     function updateCamera(){
       // camera.position.set( 0, ctrl.f0_cameraPosition, 0 );
-
       camera.lookAt(new THREE.Vector3(0, ctrl.f0_cameraPosition, 0));
     
     }
     f0_cameraPosition.onChange (function(value){ updateCamera(); });
-
-
-
-
-
-
-   
-
-
 
     var exportStart = false;
 
@@ -422,12 +381,15 @@ function init() {
   var c = "abcdefghijklmnopqrstuvwxyz";
   var cl = c.length;
   var r = "";
-  for(var i=0; i<4; i++){
-    r += c[Math.floor(Math.random()*cl)];
+  function makeName(){
+    var txt = "";
+    for(var i=0; i<4; i++){
+      txt += c[Math.floor(Math.random()*cl)];
+    }
+    r = txt;
   }
   function saveFrame(){
     if(exportFlg == true){
-      
       progress();
       var canvas  = document.getElementById('three');
       renderA.href = canvas.toDataURL();
@@ -446,15 +408,7 @@ function init() {
   myCanvas.style.width = "100%";
   myCanvas.style.height = "initial";
 
-
-
-
-
-
   var data = [];
-
-
-
   function setData(){
     data = {
       f0 : {
@@ -483,9 +437,6 @@ function init() {
       }
     };
   };
-
-
-
   function loadData(){
     console.log(data);
     
@@ -506,23 +457,13 @@ function init() {
     ctrl.f3_size = data.f3.size;
     ctrl.f3_color = data.f3.color;
 
-
     ctrl.f0_duration = data.f0.duration;
     ctrl.f0_cameraSpin = data.f0.cameraSpin;
-    
-    
-
+        
     updatePar();
     updateRing();
     updateSpiral();
-  }
-
-
-
-
-
-
-
+  };
   function save(){
     setData();
     data.color = ctrl.color;
@@ -534,8 +475,7 @@ function init() {
     // a.download = 'hogahogahoga.onom';  //ファイル名設定
     a.click();
     URL.revokeObjectURL( url );
-  }
-
+  };
   function load(){
     var input = document.createElement( 'input' );
     input.type = 'file';
@@ -548,10 +488,7 @@ function init() {
       }
     } );
     input.click();
-  }
+  };
 
-
-
-
-}
+};
 window.onload = init();
