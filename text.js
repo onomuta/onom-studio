@@ -5,6 +5,10 @@ Math.degrees = function(radian){
   return radian * 360/(2*Math.PI);
 }
 
+Math.radians = function(degrees) {
+  return degrees * Math.PI / 180;
+};
+
 function init() {
   var scene = new THREE.Scene();
   var frame = 0;
@@ -44,14 +48,21 @@ function init() {
     textMaterials = [textMaterial1,textMaterial2];
 
   // Renderer =========================================================
+    var myCanvas = document.getElementById('myCanvas');  
     var renderer = new THREE.WebGLRenderer({
-      canvas:document.getElementById('myCanvas'),
+      canvas: myCanvas,
       antialias: true
     });
+    
+    var ctx = document.getElementById('myCanvas2').getContext('2d');
+    ctx.font = "30px san-serif";
     renderer.setClearColor(new THREE.Color(0x000000));
-    renderer.setSize(canvasWidth, canvasHeight);
-    renderer.shadowMap.enabled = true;
-		renderer.domElement.id = 'three';
+    renderer.setSize(canvasWidth, canvasHeight);    
+    // renderer.shadowMap.enabled = true;
+    renderer.domElement.id = 'three';
+
+
+  // txt =======================
 
     var textMaterial1 = new THREE.MeshStandardMaterial( { color: ctrl.color } );
     var textMaterial2 = new THREE.MeshStandardMaterial( { color: ctrl.color2 } );
@@ -61,7 +72,6 @@ function init() {
     textMaterials.needsUpdate = true;
 
   // TEXTLOAD =========================================================
-    // テキストロードしてから開始
     var loader = new THREE.FontLoader();
     loader.load('fonts/Fugaz_One_Regular.json', function(font){
       mainFont = font;
@@ -90,7 +100,6 @@ function init() {
     var camera = new THREE.PerspectiveCamera( fov, aspect, near, far );
     camera.position.set( 0, 0, 100 );
     camera.lookAt(new THREE.Vector3(0, 0, 0));
-    
     scene.fog = new THREE.Fog(0x000000, 0.25, 250);
 
   // Light =============================================================
@@ -101,7 +110,6 @@ function init() {
     // 部屋全体を照らすライト
     var ambient = new THREE.AmbientLight(0xFFFFFF);
     scene.add(ambient);
-	
 
   // SNOW ============================================================================
     // snow
@@ -130,19 +138,14 @@ function init() {
     scene.add(snowPoints);
 
 //  TEXT==========================================
-
   var textGeometry;
   var textMaterials;
   var textMesh;
-
-
   var mainFont;
-
 
   function updateTxt(){
     scene.remove( textMesh );
     textGeometry.dispose();
-
     textGeometry = new THREE.TextGeometry(ctrl.TEXT, {
       font: mainFont,
       size: 20,
@@ -173,20 +176,15 @@ function init() {
     updateTxt();
   });
 
-
-
-
-  // Object ____________________________________________________
-
+  //====================================================================================
+  // Anim ==============================================================================
+  //====================================================================================
   function anim(){
-    duration = ctrl.duration-1;    
-    
     textMesh.position.x = ctrl.posX;
     textMesh.scale.set(ctrl.size,ctrl.size,ctrl.size);
     textMesh.position.y = (ctrl.size * -10) +3;
 
     scene.rotation.y = Math.tween.Cubic.easeInOut(time,0,1,1) * ( Math.PI / 180 ) *360 ;    
-
 
     camera.position.x = Math.sin(time * 6.25)* 4;
     camera.position.y = Math.sin(time * 6.25)* 5;
@@ -195,34 +193,28 @@ function init() {
 
   var exportStart = false;
 
-  // Run ________________________________________________________
+  //====================================================================================
+  // render ============================================================================
+  //====================================================================================
   function render(){
-    
+    requestAnimationFrame(render);     
+    duration = Math.round( ctrl.duration);
     if(exportFlg == true){
       if(exportStart == false){
         frame = 0;
         exportStart = true;
       }
     }
-
+    time = (frame / duration);  
     if(time >= 1){
       frame = 0;
       exportFlg = false;
       exportStart = false;
     }
-
-    time = (frame / duration);  
-    
     anim();    
     renderer.render(scene, camera);
     saveFrame();
-
     frame++;
-    
-    
-
-
-    requestAnimationFrame(render);     
   };
 
   //保存処理 ______________________________________________________
@@ -231,11 +223,16 @@ function init() {
   var c = "abcdefghijklmnopqrstuvwxyz";
   var cl = c.length;
   var r = "";
-  for(var i=0; i<4; i++){
-    r += c[Math.floor(Math.random()*cl)];
+  function makeName(){
+    var txt = "";
+    for(var i=0; i<4; i++){
+      txt += c[Math.floor(Math.random()*cl)];
+    }
+    r = txt;
   }
   function saveFrame(){
     if(exportFlg == true){
+      progress();
       var canvas  = document.getElementById('three');
       renderA.href = canvas.toDataURL();
       renderA.download = r + '_' + ( '000' + frame ).slice( -4 ) + '.png';
@@ -244,8 +241,13 @@ function init() {
   }
 
 
-  
-
-
+  function progress(){
+    ctx.fillStyle = ("#ffffff");
+    ctx.fillRect(0,0,1000,100);
+    ctx.fillStyle = ("#000000");      
+    ctx.fillText(frame + 1 + "/" + duration, 10, 40 );
+  }
+  myCanvas.style.width = "100%";
+  myCanvas.style.height = "initial";
 }
 window.onload = init();
