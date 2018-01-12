@@ -10,7 +10,7 @@ onom-studio is VJ footage generater !
 1. access to onom-studio.
 1. Let's adjust the parameters to make footage better.
 1. It repeats according to duration.
-1. Push EXPORT button, You can get PNG sequence.
+1. Push the EXPORT button, You can get PNG sequence.
 1. Please use [ffmpeg](https://www.google.co.jp/search?q=ffmpeg+gui&oq=ffmpeg+gui) or adobe etc. to convert this to a movie.
 1. Play footage on your VJ system.
 
