@@ -9,6 +9,62 @@ Math.radians = function(degrees) {
   return degrees * Math.PI / 180;
 };
 
+
+// ----------------------------------------
+// X軸の回転
+// obj   : x,y,zの位置情報をもつオブジェクト
+// angle : 移動角度(ラジアン)
+// ----------------------------------------
+function rotateX(obj, angle) {
+
+  cos = Math.cos(angle);
+  sin = Math.sin(angle);
+
+  y = obj.y * cos - obj.z * sin;
+  z = obj.z * cos + obj.y * sin;
+
+  obj.y = y;
+  obj.z = z;
+
+}
+
+// ----------------------------------------
+// Y軸の回転
+// obj   : x,y,zの位置情報をもつオブジェクト
+// angle : 移動角度(ラジアン)
+// ----------------------------------------
+function rotateY(obj, angle) {
+
+  cos = Math.cos(angle);
+  sin = Math.sin(angle);
+
+  x = obj.x * cos - obj.z * sin;
+  z = obj.z * cos + obj.x * sin;
+
+  obj.x = x;
+  obj.z = z;
+
+}
+
+// ----------------------------------------
+// Z軸の回転
+// obj   : x,y,zの位置情報をもつオブジェクト
+// angle : 移動角度(ラジアン)
+// ----------------------------------------
+function rotateZ(obj, angle) {
+
+  cos = Math.cos(angle);
+  sin = Math.sin(angle);
+
+  x = obj.x * cos - obj.y * sin;
+  y = obj.y * cos + obj.x * sin;
+
+  obj.x = x;
+  obj.y = y;
+
+}
+
+
 function init() {
   var scene = new THREE.Scene();
   var frame = 0;
@@ -130,12 +186,12 @@ function init() {
 
   
   // Camera ===========================================================
-    var fov    = 120;
+    var fov    = 100;
     var aspect = width / height;
-    var near   = 0.01;
+    var near   = 0.001;
     var far    = 4000;
     var camera = new THREE.PerspectiveCamera( fov, aspect, near, far );
-    camera.position.z = 100;
+    camera.position.z = 10;
     // camera.rotation.z = 100;
     camera.lookAt(new THREE.Vector3(0, 0, 0));
     
@@ -148,13 +204,13 @@ function init() {
     scene.add( topLight );
     
     // 部屋全体を照らすライト
-    var ambient = new THREE.AmbientLight(0xFFFFFF);
+    var ambient = new THREE.AmbientLight(0xaaaaaa);
     scene.add(ambient);
 	
   
   // Earth ========================================
-    var earthMaterial = new THREE.MeshStandardMaterial( {color: ctrl.f1_color2});
-    var earthGeometry = new THREE.BoxGeometry( 10, 10, 10 );    
+    var earthMaterial = new THREE.MeshPhongMaterial( {color: ctrl.f1_color2, shading: THREE.FlatShading});
+    var earthGeometry = new THREE.IcosahedronGeometry( 30, 1 ); 
     // var earthGeometry = new THREE.BoxGeometry( 100, 100, 100 );    
     var earthCubeCount = ctrl.f1_count;　// 生成するcubeの数
     var earth = new THREE.Mesh( earthGeometry, earthMaterial );
@@ -169,10 +225,26 @@ function init() {
   // RingBufferGeometry(innerRadius, outerRadius, thetaSegments, phiSegments, thetaStart, thetaLength)
 
 
-    var geometry = new THREE.RingBufferGeometry( 30, 50, 64 , 1, 0, 0.5 * 2 * Math.PI);
-    var material = new THREE.MeshBasicMaterial( { color: 0xffff00, side: THREE.DoubleSide } );
-    var mesh = new THREE.Mesh( geometry, material );
-    scene.add( mesh );
+    var ringGeometry = new THREE.RingBufferGeometry( 40, 50, 64 , 1, 0, 0.5 * 2 * Math.PI);
+    var ringMaterial = new THREE.MeshBasicMaterial( { color: 0xffffff, side: THREE.DoubleSide, transparent: true, opacity: 0.3, depthTest: false } );
+    // var ring = new THREE.Mesh( ringGeometry, ringMaterial );
+    // scene.add( ring );
+
+
+    var ring = [];
+    for(var i = 0; i < 30; i++) {
+      ring[i] = new THREE.Mesh( ringGeometry, ringMaterial );
+      // ring[i].rotation.x = ( Math.random() - 0.5 ) * 130;
+      // ring[i].rotation.y = ( Math.random() - 0.5 ) * 130;
+      ring[i].rotation.z = ( Math.random() - 0.5 ) * 130;
+      ring[i].position.z = ( Math.random() - 0.5 ) * 30;
+      
+      scene.add(ring[i]);
+    }
+
+
+
+
 
 
 
@@ -220,20 +292,6 @@ function init() {
 
     }
 
-  // Ring==========================================
-    var ringGeometry = new THREE.TorusBufferGeometry( ctrl.f2_size, ctrl.f2_width, 8, ctrl.f2_segments );
-    var ringMaterial = new THREE.MeshPhongMaterial( { 
-      color: ctrl.f2_color,
-      flatShading:true
-    } );
-    var ring = new THREE.Mesh( ringGeometry, ringMaterial );
-
-    var ringCount = ctrl.f2_count;　// 生成するcubeの数
-    var ring = [];
-    for(var i = 0; i < ringCount; i++) {
-      ring[i] = new THREE.Mesh( ringGeometry, ringMaterial );
-      scene.add(ring[i]);
-    }
 
   //====================================================================================
   // Anim ==============================================================================
@@ -281,9 +339,6 @@ function init() {
         particleCube[i].position.z = ((time + i/particleCubeCount)%1) * 100;
       }
 
-      for(var i = 0; i < ringCount; i++) {
-        ring[i].position.z = ((time + i/Math.floor(ringCount))%1) * 100;
-      }
 
       // camera shake ========
       // camera.position.x = Math.sin(time * 6.25)* 4;
@@ -319,35 +374,6 @@ function init() {
     f1_count.onChange (function(value){ updatePar(); });
     f1_color1.onChange(function(value){ updatePar(); });
     f1_color2.onChange(function(value){ updatePar(); });
-
-    function updateRing(){
-      ringGeometry = new THREE.TorusBufferGeometry( ctrl.f2_size, ctrl.f2_width, 8, ctrl.f2_segments );
-      ringGeometry.verticesNeedUpdate = true;
-      ringGeometry.elementsNeedUpdate = true;
-      ringGeometry.morphTargetsNeedUpdate = true;
-      ringGeometry.uvsNeedUpdate = true;
-      ringGeometry.normalsNeedUpdate = true;
-      ringGeometry.colorsNeedUpdate = true;
-      ringGeometry.tangentsNeedUpdate = true;
-      
-      ringMaterial = new THREE.MeshBasicMaterial( {color: ctrl.f2_color, flatShading:true});
-      ringMaterial.needsUpdate = true;
-      for(var i = 0; i < ringCount; i++) {
-        scene.remove(ring[i]);
-      }
-      ringCount = ctrl.f2_count;　// particleの数を更新
-      for(var i = 0; i < ringCount; i++) {
-        ring[i] = new THREE.Mesh( ringGeometry, ringMaterial );
-        ring[i].rotation.z = Math.radians(90);
-        scene.add(ring[i]);
-      }
-    }
-    f2_count.onChange (function(value){ updateRing(); });
-    f2_size.onChange (function(value){ updateRing(); });
-    f2_width.onChange (function(value){ updateRing(); });
-    f2_segments.onChange (function(value){ updateRing(); });
-    f2_color.onChange (function(value){ updateRing(); });
-    
 
     function updateSpiral(){
       spiralMaterial = new THREE.MeshBasicMaterial( {color: ctrl.f3_color});
@@ -456,11 +482,6 @@ function init() {
   }
   myCanvas.style.width = "100%";
   myCanvas.style.height = "initial";
-
-
-
-
-
 
   var data = [];
 
