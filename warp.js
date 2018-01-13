@@ -24,6 +24,7 @@ function init() {
 
   // GUI ===============================================================
     var ctrl = new function() {
+
       this.f1_count = 1000;
       this.f1_sizeX = 1.0;
       this.f1_sizeY = 1.0;
@@ -47,6 +48,7 @@ function init() {
       this.f0_cameraShake = false;
       this.f0_cameraPosition = 0;
 
+      this.shuffle = function() { shuffle()};      
       this.EXPORT = function() { makeName(); exportFlg = true};
 
       this.save_json = function() { save()};
@@ -55,6 +57,8 @@ function init() {
 
     var gui = new dat.GUI();
 
+
+    
     var f1 = gui.addFolder('Particle');
     f1.open();
     var f1_count = f1.add(ctrl, 'f1_count', 0, 5000).listen();
@@ -81,10 +85,10 @@ function init() {
   
     var f0 = gui.addFolder('Export');
     f0.open();
-    f0.add(ctrl, 'f0_cameraSpin');
-    f0.add(ctrl, 'f0_cameraShake');
-    var f0_cameraPosition = f0.add(ctrl, 'f0_cameraPosition', -100, 100);  
-    f0.add(ctrl, 'f0_duration', 10, 600);
+    f0.add(ctrl, 'f0_cameraSpin').listen();
+    f0.add(ctrl, 'f0_cameraShake').listen();
+    var f0_cameraPosition = f0.add(ctrl, 'f0_cameraPosition', -100, 100).listen();  
+    f0.add(ctrl, 'f0_duration', 10, 600).listen();
     f0.add(ctrl, 'EXPORT');
 
     var f = gui.addFolder('under construction');
@@ -323,8 +327,10 @@ function init() {
   function setData(){
     data = {
       f0 : {
-        duration : ctrl.f0_duration,
-        cameraSpin : ctrl.f0_cameraSpin
+        cameraSpin : ctrl.f0_cameraSpin,
+        cameraShake : ctrl.f0_cameraShake,              
+        cameraPosition : ctrl.f0_cameraPosition,              
+        duration : ctrl.f0_duration
       },
       f1 : {
         count : ctrl.f1_count,
@@ -368,12 +374,15 @@ function init() {
     ctrl.f3_size = data.f3.size;
     ctrl.f3_color = data.f3.color;
 
-    ctrl.f0_duration = data.f0.duration;
     ctrl.f0_cameraSpin = data.f0.cameraSpin;
+    ctrl.f0_cameraShake = data.f0.cameraShake;
+    ctrl.f0_cameraPosition = data.f0.cameraPosition;
+    ctrl.f0_duration = data.f0.duration;
         
     updatePar();
     updateRing();
     updateSpiral();
+    updateCamera();
   };
   function save(){
     setData();
