@@ -1,0 +1,119 @@
+<!DOCTYPE html>
+<html>
+<head>
+<meta charset="UTF-8">
+<script src="js/threejs/three.min.js"></script>
+<script src="js/threejs/OrbitControls.js"></script>
+<script src="js/dat.gui.min.js"></script>
+
+<script src="js/CCapture.all.min.js"></script>
+
+
+</head>
+<body>
+  <button onClick=" gifRender()"> gifRender</button>
+  <canvas id="myCanvas" style="max-width: 1280px;"></canvas>
+  <canvas id="myCanvas2" style="max-width: 380px;"></canvas>
+</body>
+
+<script>
+    var scene = new THREE.Scene();
+    var frame = 0;
+    var canvasWidth = 400;
+    var canvasHeight = 300;
+    var width  = canvasWidth;
+    var height = canvasHeight;
+  
+    var time = 0;
+    var duration;
+  
+    var exportFlg = false;
+  
+
+
+   
+
+    // Renderer =========================================================
+    var myCanvas = document.getElementById('myCanvas');
+    var myCanvas2 = document.getElementById('myCanvas2');
+      
+    var renderer = new THREE.WebGLRenderer({
+      canvas: myCanvas,
+      antialias: true
+    });
+
+    var ctx = document.getElementById('myCanvas2').getContext("2d"); 
+  
+    renderer.setClearColor(new THREE.Color(0x000000));
+    renderer.setSize(canvasWidth, canvasHeight);
+    
+    renderer.shadowMap.enabled = true;
+    renderer.domElement.id = 'three';
+    // document.body.appendChild( renderer.domElement );
+  
+  
+
+      
+ 
+
+
+    
+  
+    // Camera ===========================================================
+    var fov    = 100;
+    var aspect = width / height;
+    var near   = 0.001;
+    var far    = 4000;
+    var camera = new THREE.PerspectiveCamera( fov, aspect, near, far );
+    camera.position.z = 20;
+    camera.lookAt(new THREE.Vector3(0, 0, 0));
+    
+    scene.fog = new THREE.Fog(0x000000, 80, 200);
+  
+    // Light =============================================================
+    var topLight = new THREE.DirectionalLight(0xffffff);
+    topLight.position.set(30, 30, 100);
+    scene.add( topLight );
+    scene.add( topLight );
+    
+    // 部屋全体を照らすライト
+    var ambient = new THREE.AmbientLight(0xaaaaaa);
+    scene.add(ambient);
+  
+    // Earth ========================================
+    var earthMaterial = new THREE.MeshPhongMaterial( {color: "#ffaa00", flatShading: true});
+    var earthGeometry = new THREE.IcosahedronGeometry( 10, 1 ); 
+    var earth = new THREE.Mesh( earthGeometry, earthMaterial );
+    scene.add(earth);
+  
+  
+
+    var capturer = new CCapture({
+      format: 'gif', workersPath: 'js/',
+      framerate: 60,
+      verbose: true,
+      name: 01,
+      timeLimit: 3
+    });
+    capturer.start();
+
+
+
+
+
+    // Run ________________________________________________________
+    function render(){
+      requestAnimationFrame(render);   
+      
+      earth.rotation.y = (frame /180 * Math.PI) /2;
+
+      renderer.render(scene, camera);
+      capturer.capture(myCanvas);
+
+      frame++;
+    };
+    render();
+
+
+  </script>
+</html>
