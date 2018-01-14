@@ -319,9 +319,12 @@ function init() {
         a.download = 'loop.gif';  //ファイル名設定
         a.click();
         URL.revokeObjectURL( url );
+       document.getElementById('gif-renderring').classList.remove('active');
+        
       });
 
-      renderer.setSize(canvasWidth, canvasHeight);    
+      // renderer.setSize(canvasWidth, canvasHeight);   
+       
       capTrigger = false; 
     }
 
@@ -467,6 +470,8 @@ function init() {
 
   var capTrigger = false;
   function gifRec(){
+    document.getElementById('gif-renderring').classList.add('active');
+
     camera = new THREE.PerspectiveCamera( fov, 1, near, far );
     renderer.setSize(300, 300);
     frame = 0;
@@ -479,3 +484,12 @@ function init() {
 
 };
 window.onload = init();
+
+
+
+
+
+
+
+
+
