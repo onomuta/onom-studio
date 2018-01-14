@@ -52,6 +52,7 @@ function init() {
       this.EXPORT = function() { makeName(); exportFlg = true};
 
       this.GIF_EXPORT = function() { gifRec()};
+      this.GIF_EXPORT2 = function() { gifRec2()};
       
       this.save_json = function() { save()};
       this.load_json = function() { load()};
@@ -91,11 +92,12 @@ function init() {
     f0.add(ctrl, 'f0_cameraShake').listen();
     var f0_cameraPosition = f0.add(ctrl, 'f0_cameraPosition', -100, 100).listen();  
     f0.add(ctrl, 'f0_duration', 10, 600).listen();
-    f0.add(ctrl, 'EXPORT');
+    // f0.add(ctrl, 'EXPORT');
 
     var f = gui.addFolder('under construction');
     
     f.add(ctrl, 'GIF_EXPORT');
+    f.add(ctrl, 'GIF_EXPORT2');
     f.add(ctrl, 'save_json');
     f.add(ctrl, 'load_json');
 
@@ -472,12 +474,25 @@ function init() {
   function gifRec(){
     document.getElementById('gif-rendering').classList.add('active');
 
-    camera = new THREE.PerspectiveCamera( fov, 1, near, far );
+    // camera = new THREE.PerspectiveCamera( fov, 1, near, far );
     renderer.setSize(300, 300);
     frame = 0;
     capturer.start();
     capTrigger = true;
   }
+
+
+  function gifRec2(){
+    document.getElementById('gif-rendering').classList.add('active');
+
+    // camera = new THREE.PerspectiveCamera( fov, 1, near, far );
+    renderer.setSize(400, 225);
+    frame = 0;
+    capturer.start();
+    capTrigger = true;
+  }
+
+
 
 
 
