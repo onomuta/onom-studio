@@ -1,119 +1,41 @@
 <!DOCTYPE html>
-<html>
+<html >
 <head>
-<meta charset="UTF-8">
-<script src="js/threejs/three.min.js"></script>
-<script src="js/threejs/OrbitControls.js"></script>
-<script src="js/dat.gui.min.js"></script>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, user-scalable=no, minimum-scale=1.0, maximum-scale=1.0">
+	<title>onom-studio</title>
+	<!-- <script src="https://cdnjs.cloudflare.com/ajax/libs/three.js/89/three.min.js"></script> -->
+	<!-- <script src="https://threejs.org/examples/js/controls/OrbitControls.js"></script> -->
+	<!-- <script src="https://cdnjs.cloudflare.com/ajax/libs/dat-gui/0.6.5/dat.gui.min.js"></script> -->
 
-<script src="js/CCapture.all.min.js"></script>
+  <!-- <script src="js/perlin-noise-simplex.js"></script> -->
+  <script src="js/CCapture.all.min.js"></script>
 
 
+	<script src="js/tween.js"></script>
+	<script src="js/threejs/three.min.js"></script>
+	<script src="js/threejs/OrbitControls.js"></script>
+	<script src="js/dat.gui.min.js"></script>
+
+	<style>
+		*{
+			margin:0;
+			box-sizing:border-box;
+		}
+		body{
+			position:absolute;
+			width:100%;
+			height:100%;
+		}
+	</style>
+	
 </head>
-<body>
-  <button onClick=" gifRender()"> gifRender</button>
-  <canvas id="myCanvas" style="max-width: 1280px;"></canvas>
-  <canvas id="myCanvas2" style="max-width: 380px;"></canvas>
+<body style="background:#ddd; text-align:center">
+	<div id="stage"></div>
+	<canvas id="myCanvas" style="max-width: 1280px;"></canvas>
+
+
+	<canvas id="myCanvas2"></canvas>
 </body>
-
-<script>
-    var scene = new THREE.Scene();
-    var frame = 0;
-    var canvasWidth = 400;
-    var canvasHeight = 300;
-    var width  = canvasWidth;
-    var height = canvasHeight;
-  
-    var time = 0;
-    var duration;
-  
-    var exportFlg = false;
-  
-
-
-   
-
-    // Renderer =========================================================
-    var myCanvas = document.getElementById('myCanvas');
-    var myCanvas2 = document.getElementById('myCanvas2');
-      
-    var renderer = new THREE.WebGLRenderer({
-      canvas: myCanvas,
-      antialias: true
-    });
-
-    var ctx = document.getElementById('myCanvas2').getContext("2d"); 
-  
-    renderer.setClearColor(new THREE.Color(0x000000));
-    renderer.setSize(canvasWidth, canvasHeight);
-    
-    renderer.shadowMap.enabled = true;
-    renderer.domElement.id = 'three';
-    // document.body.appendChild( renderer.domElement );
-  
-  
-
-      
- 
-
-
-    
-  
-    // Camera ===========================================================
-    var fov    = 100;
-    var aspect = width / height;
-    var near   = 0.001;
-    var far    = 4000;
-    var camera = new THREE.PerspectiveCamera( fov, aspect, near, far );
-    camera.position.z = 20;
-    camera.lookAt(new THREE.Vector3(0, 0, 0));
-    
-    scene.fog = new THREE.Fog(0x000000, 80, 200);
-  
-    // Light =============================================================
-    var topLight = new THREE.DirectionalLight(0xffffff);
-    topLight.position.set(30, 30, 100);
-    scene.add( topLight );
-    scene.add( topLight );
-    
-    // 部屋全体を照らすライト
-    var ambient = new THREE.AmbientLight(0xaaaaaa);
-    scene.add(ambient);
-  
-    // Earth ========================================
-    var earthMaterial = new THREE.MeshPhongMaterial( {color: "#ffaa00", flatShading: true});
-    var earthGeometry = new THREE.IcosahedronGeometry( 10, 1 ); 
-    var earth = new THREE.Mesh( earthGeometry, earthMaterial );
-    scene.add(earth);
-  
-  
-
-    var capturer = new CCapture({
-      format: 'gif', workersPath: 'js/',
-      framerate: 60,
-      verbose: true,
-      name: 01,
-      timeLimit: 3
-    });
-    capturer.start();
-
-
-
-
-
-    // Run ________________________________________________________
-    function render(){
-      requestAnimationFrame(render);   
-      
-      earth.rotation.y = (frame /180 * Math.PI) /2;
-
-      renderer.render(scene, camera);
-      capturer.capture(myCanvas);
-
-      frame++;
-    };
-    render();
-
-
-  </script>
+<script src="test.js"></script>
 </html>
