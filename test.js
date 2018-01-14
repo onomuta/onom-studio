@@ -51,11 +51,7 @@ function init() {
       this.shuffle = function() { shuffle()};      
       this.EXPORT = function() { makeName(); exportFlg = true};
 
-      this.GIF_EXPORT = function() { 
-        camera = new THREE.PerspectiveCamera( fov, 1, near, far );
-        renderer.setSize(300, 300);
-        gifRec()
-      };
+      this.GIF_EXPORT = function() { gifRec()};
       
       this.save_json = function() { save()};
       this.load_json = function() { load()};
@@ -283,6 +279,13 @@ function init() {
   function render(){
     requestAnimationFrame(render);     
     duration = Math.round(ctrl.f0_duration);
+
+
+    if(capTrigger == true){
+      duration = Math.floor(duration / 2);
+    }
+    
+
     if(exportFlg == true){
       if(exportStart == false){
         frame = 0;
@@ -302,12 +305,11 @@ function init() {
 
 
     
-
     if(capTrigger == true){
       capturer.capture(myCanvas);
     }
-    
-    if(frame== 100 && capTrigger == true){
+
+    if(frame== duration && capTrigger == true){
       capturer.stop();
       capturer.save( function( blob ) { 
         console.log(blob);
@@ -317,7 +319,10 @@ function init() {
         a.download = 'loop.gif';  //ファイル名設定
         a.click();
         URL.revokeObjectURL( url );
-      } );
+      });
+
+      renderer.setSize(canvasWidth, canvasHeight);    
+      capTrigger = false; 
     }
 
 
@@ -452,7 +457,7 @@ function init() {
   var capturer = new CCapture({
     format: 'gif', workersPath: 'js/',
     verbose: true,
-    framerate: 60,
+    framerate: 0,
     // name: 01,
     // timeLimit: 1,
     // width:1280,
@@ -462,10 +467,11 @@ function init() {
 
   var capTrigger = false;
   function gifRec(){
+    camera = new THREE.PerspectiveCamera( fov, 1, near, far );
+    renderer.setSize(300, 300);
     frame = 0;
     capturer.start();
     capTrigger = true;
-
   }
 
 
