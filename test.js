@@ -319,7 +319,7 @@ function init() {
         a.download = 'loop.gif';  //ファイル名設定
         a.click();
         URL.revokeObjectURL( url );
-       document.getElementById('gif-renderring').classList.remove('active');
+        document.getElementById('gif-rendering').classList.remove('active');
         
       });
 
@@ -470,7 +470,7 @@ function init() {
 
   var capTrigger = false;
   function gifRec(){
-    document.getElementById('gif-renderring').classList.add('active');
+    document.getElementById('gif-rendering').classList.add('active');
 
     camera = new THREE.PerspectiveCamera( fov, 1, near, far );
     renderer.setSize(300, 300);
