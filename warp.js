@@ -50,7 +50,7 @@ function init() {
 
       this.shuffle = function() { shuffle()};      
       this.EXPORT = function() { makeName(); exportFlg = true};
-
+      
       this.save_json = function() { save()};
       this.load_json = function() { load()};
     };
@@ -83,13 +83,13 @@ function init() {
     var f3_size = f3.add(ctrl, 'f3_size', 0.1, 10).listen();
     var f3_color = f3.addColor(ctrl, 'f3_color').listen();
   
-    var f0 = gui.addFolder('Export');
+    var f0 = gui.addFolder('Camera');
     f0.open();
     f0.add(ctrl, 'f0_cameraSpin').listen();
     f0.add(ctrl, 'f0_cameraShake').listen();
     var f0_cameraPosition = f0.add(ctrl, 'f0_cameraPosition', -100, 100).listen();  
     f0.add(ctrl, 'f0_duration', 10, 600).listen();
-    f0.add(ctrl, 'EXPORT');
+    // f0.add(ctrl, 'EXPORT');
 
     var f = gui.addFolder('under construction');
     
@@ -116,6 +116,7 @@ function init() {
     var near   = 0.01;
     var far    = 4000;
     var camera = new THREE.PerspectiveCamera( fov, aspect, near, far );
+    
     camera.position.set( 0, 0, 10 );
     camera.lookAt(new THREE.Vector3(0, 0, 0));
     
@@ -268,9 +269,23 @@ function init() {
   //====================================================================================
   // render ============================================================================
   //====================================================================================
+
+
+
+  var gifCount = 0;
   function render(){
     requestAnimationFrame(render);     
     duration = Math.round(ctrl.f0_duration);
+
+    if(capTrigger == true){
+
+      if(duration > 300){
+        duration = Math.floor(duration * ( 150 / duration));
+      }else{
+        duration = Math.floor(duration / 2);
+      }
+    }
+    
     if(exportFlg == true){
       if(exportStart == false){
         frame = 0;
@@ -287,6 +302,44 @@ function init() {
     renderer.render(scene, camera);
     saveFrame();
     frame++;
+    
+    if(capTrigger == true){
+      capturer.capture(myCanvas);
+    }
+
+    if(frame== duration && capTrigger == true){
+      capturer.stop();
+      capturer.save( function( blob ) { 
+        console.log(blob);
+        var url = URL.createObjectURL( blob );
+        var a = document.createElement( 'a' );
+        a.href = url;
+        a.download = 'loop.gif';  //ファイル名設定
+        a.click();
+        URL.revokeObjectURL( url );
+        document.getElementById('gif-rendering').classList.remove('active');
+        
+      });
+
+      // renderer.setSize(canvasWidth, canvasHeight);   
+       
+      capturer = new CCapture({
+        format: 'gif', workersPath: 'js/',
+        verbose: true,
+        framerate: 0,
+        // name: 01,
+        // timeLimit: 1,
+        // width:1280,
+        // height:720
+      });
+      capTrigger = false;
+      renderer.setSize(canvasWidth, canvasHeight);
+      myCanvas.style.width = '100%';
+      myCanvas.style.height = 'initial';
+      
+    }
+
+
   };
   render();
 
@@ -296,7 +349,8 @@ function init() {
   var c = "abcdefghijklmnopqrstuvwxyz";
   var cl = c.length;
   var r = "";
-  function makeName(){
+  function exportPng(){
+    exportFlg = true
     var txt = "";
     for(var i=0; i<4; i++){
       txt += c[Math.floor(Math.random()*cl)];
@@ -410,5 +464,72 @@ function init() {
     input.click();
   };
 
+
+
+
+
+
+  var capturer = new CCapture({
+    format: 'gif', workersPath: 'js/',
+    verbose: true,
+    framerate: 0,
+    // name: 01,
+    // timeLimit: 1,
+    // width:1280,
+    // height:720
+  });
+
+
+  var capTrigger = false;
+  function exportGif2(){
+    document.getElementById('gif-rendering').classList.add('active');
+    camera = new THREE.PerspectiveCamera( fov, 1, near, far );
+    
+    updateCamera();
+    renderer.setSize(300, 300);
+    frame = 0;
+    capturer.start();
+    capTrigger = true;
+  }
+
+
+  
+
+
+  function exportGif(){
+    document.getElementById('gif-rendering').classList.add('active');
+    // camera = new THREE.PerspectiveCamera( fov, 1, near, far );
+    renderer.setSize(400, 225);
+    frame = 0;
+    capturer.start();
+    capTrigger = true;
+  }
+
+
+
+  document.getElementById("exportPngBtn").onclick = function() {
+    exportPng();
+  };
+  document.getElementById("exportGifBtn").onclick = function() {
+    exportGif();
+  };
+  document.getElementById("exportGifBtn2").onclick = function() {
+    exportGif2();
+  };
+
+
+
+
+
+
 };
 window.onload = init();
+
+
+
+
+
+
+
+
+
