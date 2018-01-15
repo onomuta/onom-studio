@@ -50,9 +50,6 @@ function init() {
 
       this.shuffle = function() { shuffle()};      
       this.EXPORT = function() { makeName(); exportFlg = true};
-
-      this.GIF_EXPORT = function() { gifRec()};
-      this.GIF_EXPORT2 = function() { gifRec2()};
       
       this.save_json = function() { save()};
       this.load_json = function() { load()};
@@ -96,8 +93,6 @@ function init() {
 
     var f = gui.addFolder('under construction');
     
-    f.add(ctrl, 'GIF_EXPORT');
-    f.add(ctrl, 'GIF_EXPORT2');
     f.add(ctrl, 'save_json');
     f.add(ctrl, 'load_json');
 
@@ -282,12 +277,15 @@ function init() {
     requestAnimationFrame(render);     
     duration = Math.round(ctrl.f0_duration);
 
-
     if(capTrigger == true){
-      duration = Math.floor(duration / 2);
+
+      if(duration > 300){
+        duration = Math.floor(duration * ( 150 / duration));
+      }else{
+        duration = Math.floor(duration / 2);
+      }
     }
     
-
     if(exportFlg == true){
       if(exportStart == false){
         frame = 0;
@@ -304,8 +302,6 @@ function init() {
     renderer.render(scene, camera);
     saveFrame();
     frame++;
-
-
     
     if(capTrigger == true){
       capturer.capture(myCanvas);
@@ -340,7 +336,8 @@ function init() {
   var c = "abcdefghijklmnopqrstuvwxyz";
   var cl = c.length;
   var r = "";
-  function makeName(){
+  function exportPng(){
+    exportFlg = true
     var txt = "";
     for(var i=0; i<4; i++){
       txt += c[Math.floor(Math.random()*cl)];
@@ -471,10 +468,9 @@ function init() {
 
 
   var capTrigger = false;
-  function gifRec(){
+  function exportGif(){
     document.getElementById('gif-rendering').classList.add('active');
-
-    // camera = new THREE.PerspectiveCamera( fov, 1, near, far );
+    camera = new THREE.PerspectiveCamera( fov * 2, 1, near, far );
     renderer.setSize(300, 300);
     frame = 0;
     capturer.start();
@@ -482,15 +478,26 @@ function init() {
   }
 
 
-  function gifRec2(){
+  function exportGif2(){
     document.getElementById('gif-rendering').classList.add('active');
-
     // camera = new THREE.PerspectiveCamera( fov, 1, near, far );
     renderer.setSize(400, 225);
     frame = 0;
     capturer.start();
     capTrigger = true;
   }
+
+
+
+  document.getElementById("exportPngBtn").onclick = function() {
+    exportPng();
+  };
+  document.getElementById("exportGifBtn").onclick = function() {
+    exportGif();
+  };
+  document.getElementById("exportGifBtn2").onclick = function() {
+    exportGif2();
+  };
 
 
 
