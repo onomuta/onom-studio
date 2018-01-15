@@ -44,15 +44,23 @@
 		#gif-rendering.active{
 			display:block
 		}
-
+		.expot-title{
+			font-size: 4vw;
+			padding:16px
+		}
 		.expot-btn{
 			display:block;
 			width:100%;
 			color:white;
 			font-size:4vw;
-			padding:8px;
-			background: #f06;
-			text-align:left
+			padding:16px;
+			background: #f04;
+			text-align:left;
+			border:none;
+		}
+		.expot-btn:hover{
+			background:white;
+			color:#f04;
 		}
 
 	</style>
@@ -63,7 +71,7 @@
 	<canvas id="myCanvas" style="max-width: 1280px;"></canvas>
 
 	<div style="text-align:left">
-		<span style="font-size: 4vw">EXPORT:</span>
+		<span class="expot-title">EXPORT :</span>
 		<button class="expot-btn" id="exportPngBtn">PNG</button>
 		<button class="expot-btn" id="exportGifBtn">GIF</button>
 		<button class="expot-btn" id="exportGifBtn2">SQ GIF</button>
