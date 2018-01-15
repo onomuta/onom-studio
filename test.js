@@ -323,6 +323,15 @@ function init() {
 
       // renderer.setSize(canvasWidth, canvasHeight);   
        
+      capturer = new CCapture({
+        format: 'gif', workersPath: 'js/',
+        verbose: true,
+        framerate: 0,
+        // name: 01,
+        // timeLimit: 1,
+        // width:1280,
+        // height:720
+      });
       capTrigger = false; 
     }
 
@@ -478,6 +487,9 @@ function init() {
     capturer.start();
     capTrigger = true;
   }
+
+
+  
 
 
   function exportGif(){
