@@ -468,7 +468,7 @@ function init() {
 
 
   var capTrigger = false;
-  function exportGif(){
+  function exportGif2(){
     document.getElementById('gif-rendering').classList.add('active');
     camera = new THREE.PerspectiveCamera( fov, 1, near, far );
     
@@ -480,7 +480,7 @@ function init() {
   }
 
 
-  function exportGif2(){
+  function exportGif(){
     document.getElementById('gif-rendering').classList.add('active');
     // camera = new THREE.PerspectiveCamera( fov, 1, near, far );
     renderer.setSize(400, 225);
