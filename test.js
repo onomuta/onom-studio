@@ -332,7 +332,11 @@ function init() {
         // width:1280,
         // height:720
       });
-      capTrigger = false; 
+      capTrigger = false;
+      renderer.setSize(canvasWidth, canvasHeight);
+      myCanvas.style.width = '100%';
+      myCanvas.style.height = 'initial';
+      
     }
 
 
