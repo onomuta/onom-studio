@@ -83,7 +83,7 @@ function init() {
     var f3_size = f3.add(ctrl, 'f3_size', 0.1, 10).listen();
     var f3_color = f3.addColor(ctrl, 'f3_color').listen();
   
-    var f0 = gui.addFolder('Export');
+    var f0 = gui.addFolder('Camera');
     f0.open();
     f0.add(ctrl, 'f0_cameraSpin').listen();
     f0.add(ctrl, 'f0_cameraShake').listen();
