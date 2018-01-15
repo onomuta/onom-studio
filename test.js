@@ -470,7 +470,9 @@ function init() {
   var capTrigger = false;
   function exportGif(){
     document.getElementById('gif-rendering').classList.add('active');
-    camera = new THREE.PerspectiveCamera( fov * 2, 1, near, far );
+    camera = new THREE.PerspectiveCamera( fov, 1, near, far );
+    
+    updateCamera();
     renderer.setSize(300, 300);
     frame = 0;
     capturer.start();
