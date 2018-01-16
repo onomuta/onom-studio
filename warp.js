@@ -333,6 +333,7 @@ function init() {
         // height:720
       });
       capTrigger = false;
+      camera = new THREE.PerspectiveCamera( fov, canvasWidth / canvasHeight, near, far );
       renderer.setSize(canvasWidth, canvasHeight);
       myCanvas.style.width = '100%';
       myCanvas.style.height = 'initial';
