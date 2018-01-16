@@ -25,7 +25,7 @@ function init() {
   // GUI ===============================================================
     var ctrl = new function() {
 
-      this.f1_count = 1000;
+      this.f1_count = 0;
       this.f1_sizeX = 1.0;
       this.f1_sizeY = 1.0;
       this.f1_sizeZ = 10.0;
@@ -42,6 +42,12 @@ function init() {
       this.f3_size = 1;
       this.f3_rotate = 0;
       this.f3_color = "#ffffff";
+
+      this.f4_count = 50;
+      this.f4_size = 20;
+      this.f4_width = 2;
+      this.f4_length = 2;
+      this.f4_color = "#0066ff";
       
       this.f0_duration = 600;
       this.f0_cameraSpin = false;
@@ -60,8 +66,7 @@ function init() {
 
     
     var f1 = gui.addFolder('Particle');
-    f1.open();
-    var f1_count = f1.add(ctrl, 'f1_count', 0, 5000).listen();
+    var f1_count = f1.add(ctrl, 'f1_count', 0, 4000).listen();
     var f1_sizeX = f1.add(ctrl, 'f1_sizeX', 0.1, 20).listen();
     var f1_sizeY = f1.add(ctrl, 'f1_sizeY', 0.1, 20).listen();
     var f1_sizeZ = f1.add(ctrl, 'f1_sizeZ', 0.1, 20).listen();
@@ -69,7 +74,6 @@ function init() {
     var f1_color2 = f1.addColor(ctrl, 'f1_color2').listen();
     
     var f2 = gui.addFolder('Ring');
-    f2.open();
     var f2_count = f2.add(ctrl, 'f2_count', 0, 20).listen();
     var f2_size = f2.add(ctrl, 'f2_size', 0, 15).listen();
     var f2_width = f2.add(ctrl, 'f2_width', 0.1, 2).listen();
@@ -77,11 +81,18 @@ function init() {
     var f2_color = f2.addColor(ctrl, 'f2_color').listen();
     
     var f3 = gui.addFolder('Spiral');
-    f3.open();
-    var f3_count = f3.add(ctrl, 'f3_count', 0, 1000).listen();
+    var f3_count = f3.add(ctrl, 'f3_count', 0, 500).listen();
     var f3_rotate = f3.add(ctrl, 'f3_rotate', 0, 180).listen();
-    var f3_size = f3.add(ctrl, 'f3_size', 0.1, 10).listen();
+    var f3_size = f3.add(ctrl, 'f3_size', 0.1, 8).listen();
     var f3_color = f3.addColor(ctrl, 'f3_color').listen();
+
+    var f4 = gui.addFolder('GITS');
+    f4.open();
+    var f4_count = f4.add(ctrl, 'f4_count', 0, 200).listen();
+    var f4_size = f4.add(ctrl, 'f4_size', 0.1, 30).listen();
+    var f4_width = f4.add(ctrl, 'f4_width', 0.1, 20).listen();
+    var f4_length = f4.add(ctrl, 'f4_length', 0.1, 2 * Math.PI).listen();    
+    var f4_color = f4.addColor(ctrl, 'f4_color').listen();
   
     var f0 = gui.addFolder('Camera');
     f0.open();
@@ -152,6 +163,20 @@ function init() {
     var ringCount;
     var ring = [];
     updateRing();
+
+  // GitsMan ==========================================
+    var gitsGeometry;
+    var gitsMaterial;
+    var gitsCount;
+    var gitsSpinSpeed = [];    
+    var gits = [];
+    updateGits();
+
+    // GitsCount = 100;
+    
+
+
+
   //====================================================================================
   // Anim ==============================================================================
   //====================================================================================
@@ -179,10 +204,15 @@ function init() {
         ring[i].position.z = ((time + i/Math.floor(ringCount))%1) * 100;
       }
 
+      for(var i = 0; i < gitsCount; i++) {
+        gits[i].position.z = ((time + i/Math.floor(gitsCount))%1) * 100;
+        gits[i].rotation.z = Tween.Cubic.easeInOut( gits[i].position.z/100, 0, 1, 1) * Math.PI * 2;
+      }
+
       // camera shake ========
       if(ctrl.f0_cameraShake == true){
-        camera.position.x = Math.sin(time * 4 * Math.PI);
-        camera.position.y = Math.sin(time * 6 * Math.PI);       
+        camera.position.x = Math.sin(time * 4 * Math.PI)* 2;
+        camera.position.y = Math.sin(time * 6 * Math.PI)* 2;       
       }else{
         camera.position.x = 0;
         camera.position.y = 0;   
@@ -260,6 +290,55 @@ function init() {
     f2_segments.onChange (function(value){ updateRing(); });
     f2_color.onChange (function(value){ updateRing(); });
     
+
+
+
+
+    function updateGits(){
+      var innerRadius;
+      var outerRadius;
+      var thetaSegments = 64;
+      var phiSegments = 1;
+      var thetaStart = 0;
+      var thetaLength;
+
+      gitsMaterial = new THREE.MeshBasicMaterial( { color: ctrl.f4_color, 
+        transparent: true, 
+        blending: THREE.AdditiveBlending,
+        side: THREE.DoubleSide,
+        depthWrite: false
+      } );
+
+      gitsMaterial.needsUpdate = true;
+      for(var i = 0; i < gitsCount; i++) {
+        scene.remove(gits[i]);
+      }
+      gitsCount = ctrl.f4_count;　// particleの数を更新
+      for(var i = 0; i < gitsCount; i++) {
+
+        gitsSpinSpeed[i] = Math.round(Math.random())*2-1;
+        
+        innerRadius = Math.random() * ctrl.f4_size;
+        outerRadius = innerRadius + Math.random() * ctrl.f4_width;
+
+        thetaLength = Math.random() * Math.PI * ctrl.f4_length;
+        thetaStart = Math.random() * Math.PI * 2;
+
+        gitsGeometry = new THREE.RingBufferGeometry(innerRadius, outerRadius, thetaSegments, phiSegments, thetaStart, thetaLength);
+        gits[i] = new THREE.Mesh( gitsGeometry, gitsMaterial );
+        gits[i].position.z = Math.random()* 30;
+        scene.add(gits[i]);
+      }
+    }
+    f4_count.onChange (function(value){ updateGits(); });
+    f4_size.onChange (function(value){ updateGits(); });
+    f4_width.onChange (function(value){ updateGits(); });
+    f4_length.onChange (function(value){ updateGits(); });
+    f4_color.onChange (function(value){ updateGits(); });
+
+
+
+
     function updateCamera(){
       camera.lookAt(new THREE.Vector3(0, ctrl.f0_cameraPosition, 0));
     }
@@ -367,7 +446,6 @@ function init() {
     }
   }
 
-
   function progress(){
     ctx.fillStyle = ("#ffffff");
     ctx.fillRect(0,0,1000,100);
@@ -464,11 +542,6 @@ function init() {
     input.click();
   };
 
-
-
-
-
-
   var capturer = new CCapture({
     format: 'gif', workersPath: 'js/',
     verbose: true,
@@ -492,10 +565,6 @@ function init() {
     capTrigger = true;
   }
 
-
-  
-
-
   function exportGif(){
     document.getElementById('gif-rendering').classList.add('active');
     // camera = new THREE.PerspectiveCamera( fov, 1, near, far );
@@ -504,8 +573,6 @@ function init() {
     capturer.start();
     capTrigger = true;
   }
-
-
 
   document.getElementById("exportPngBtn").onclick = function() {
     exportPng();
@@ -516,11 +583,6 @@ function init() {
   document.getElementById("exportGifBtn2").onclick = function() {
     exportGif2();
   };
-
-
-
-
-
 
 };
 window.onload = init();
