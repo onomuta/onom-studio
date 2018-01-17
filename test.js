@@ -12,9 +12,9 @@ function init() {
   // GUI ===============================================================
     var ctrl = new function() {
 
-      this.f1_count  = 0;
-      this.f1_sizeX  = 1.0;
-      this.f1_sizeY  = 1.0;
+      this.f1_count  = 800;
+      this.f1_sizeX  = 0.2;
+      this.f1_sizeY  = 0.2;
       this.f1_sizeZ  = 10.0;
       this.f1_color1 = "#ffffff";
       this.f1_color2 = "#ff0000";
@@ -395,7 +395,7 @@ function init() {
       renderer.setSize(canvasWidth, canvasHeight);
       aspect = width / height;
       camera = new THREE.PerspectiveCamera( fov,  aspect, near, far );
-      
+      camera.lookAt(new THREE.Vector3(0, ctrl.f0_cameraPosition, 0));      
       myCanvas.style.width = '100%';
       myCanvas.style.height = 'initial';
       
