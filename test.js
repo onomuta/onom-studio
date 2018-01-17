@@ -1,14 +1,3 @@
-Math.degrees = function(radian){
-  if(isNaN(radian)){
-     return NaN;
-  }
-  return radian * 360/(2*Math.PI);
-}
-
-Math.radians = function(degrees) {
-  return degrees * Math.PI / 180;
-};
-
 function init() {
   var scene = new THREE.Scene();
   var frame = 0;
@@ -16,42 +5,40 @@ function init() {
   var canvasHeight = 720;
   var width  = canvasWidth;
   var height = canvasHeight;
-
   var time = 0;
   var duration;
-
   var exportFlg = false;
 
   // GUI ===============================================================
     var ctrl = new function() {
 
-      this.f1_count = 0;
-      this.f1_sizeX = 1.0;
-      this.f1_sizeY = 1.0;
-      this.f1_sizeZ = 10.0;
+      this.f1_count  = 0;
+      this.f1_sizeX  = 1.0;
+      this.f1_sizeY  = 1.0;
+      this.f1_sizeZ  = 10.0;
       this.f1_color1 = "#ffffff";
       this.f1_color2 = "#ff0000";
 
-      this.f2_count = 0;
-      this.f2_size = 5;
-      this.f2_width = 0.5;
-      this.f2_color = "#ffffff";
+      this.f2_count    = 0;
+      this.f2_size     = 5;
+      this.f2_width    = 0.5;
+      this.f2_color    = "#ffffff";
       this.f2_segments = 8;
       
-      this.f3_count = 0;
-      this.f3_size = 1;
+      this.f3_count  = 0;
+      this.f3_size   = 1;
       this.f3_rotate = 0;
-      this.f3_color = "#ffffff";
+      this.f3_color  = "#ffffff";
 
-      this.f4_count = 50;
-      this.f4_size = 20;
-      this.f4_width = 2;
+      this.f4_count  = 50;
+      this.f4_size   = 20;
+      this.f4_width  = 2;
       this.f4_length = 2;
-      this.f4_color = "#0066ff";
+      this.f4_color  = "#0066ff";
       
-      this.f0_duration = 600;
-      this.f0_cameraSpin = false;
-      this.f0_cameraShake = false;
+      this.f0_duration       = 600;
+      this.f0_cameraSpin     = false;
+      this.f0_cameraShake    = false;
       this.f0_cameraPosition = 0;
 
       this.shuffle = function() { shuffle()};      
@@ -61,41 +48,37 @@ function init() {
       this.load_json = function() { load()};
     };
 
-
     var gui = new dat.GUI();
-
-
-    gui.remember(ctrl);
-
+    // gui.remember(ctrl);
     
     var f1 = gui.addFolder('Particle');
-    var f1_count = f1.add(ctrl, 'f1_count', 0, 4000).listen();
-    var f1_sizeX = f1.add(ctrl, 'f1_sizeX', 0.1, 20).listen();
-    var f1_sizeY = f1.add(ctrl, 'f1_sizeY', 0.1, 20).listen();
-    var f1_sizeZ = f1.add(ctrl, 'f1_sizeZ', 0.1, 20).listen();
+    var f1_count  = f1.add(ctrl, 'f1_count', 0, 4000).listen();
+    var f1_sizeX  = f1.add(ctrl, 'f1_sizeX', 0.1, 20).listen();
+    var f1_sizeY  = f1.add(ctrl, 'f1_sizeY', 0.1, 20).listen();
+    var f1_sizeZ  = f1.add(ctrl, 'f1_sizeZ', 0.1, 20).listen();
     var f1_color1 = f1.addColor(ctrl, 'f1_color1').listen();
     var f1_color2 = f1.addColor(ctrl, 'f1_color2').listen();
     
     var f2 = gui.addFolder('Ring');
-    var f2_count = f2.add(ctrl, 'f2_count', 0, 20).listen();
-    var f2_size = f2.add(ctrl, 'f2_size', 0, 15).listen();
-    var f2_width = f2.add(ctrl, 'f2_width', 0.1, 2).listen();
+    var f2_count    = f2.add(ctrl, 'f2_count', 0, 20).listen();
+    var f2_size     = f2.add(ctrl, 'f2_size', 0, 15).listen();
+    var f2_width    = f2.add(ctrl, 'f2_width', 0.1, 2).listen();
     var f2_segments = f2.add(ctrl, 'f2_segments', 3, 64).listen();
-    var f2_color = f2.addColor(ctrl, 'f2_color').listen();
+    var f2_color    = f2.addColor(ctrl, 'f2_color').listen();
     
     var f3 = gui.addFolder('Spiral');
-    var f3_count = f3.add(ctrl, 'f3_count', 0, 500).listen();
+    var f3_count  = f3.add(ctrl, 'f3_count', 0, 500).listen();
     var f3_rotate = f3.add(ctrl, 'f3_rotate', 0, 180).listen();
-    var f3_size = f3.add(ctrl, 'f3_size', 0.1, 8).listen();
-    var f3_color = f3.addColor(ctrl, 'f3_color').listen();
+    var f3_size   = f3.add(ctrl, 'f3_size', 0.1, 8).listen();
+    var f3_color  = f3.addColor(ctrl, 'f3_color').listen();
 
     var f4 = gui.addFolder('GITS');
     f4.open();
-    var f4_count = f4.add(ctrl, 'f4_count', 0, 200).listen();
-    var f4_size = f4.add(ctrl, 'f4_size', 0.1, 30).listen();
-    var f4_width = f4.add(ctrl, 'f4_width', 0.1, 20).listen();
+    var f4_count  = f4.add(ctrl, 'f4_count', 0, 200).listen();
+    var f4_size   = f4.add(ctrl, 'f4_size', 0.1, 30).listen();
+    var f4_width  = f4.add(ctrl, 'f4_width', 0.1, 20).listen();
     var f4_length = f4.add(ctrl, 'f4_length', 0.1, 2 * Math.PI).listen();    
-    var f4_color = f4.addColor(ctrl, 'f4_color').listen();
+    var f4_color  = f4.addColor(ctrl, 'f4_color').listen();
   
     var f0 = gui.addFolder('Camera');
     f0.open();
@@ -209,7 +192,7 @@ function init() {
 
       for(var i = 0; i < gitsCount; i++) {
         gits[i].position.z = ((time + i/Math.floor(gitsCount))%1) * 100;
-        gits[i].rotation.z = Tween.Cubic.easeInOut( gits[i].position.z/100, 0, 1, 1) * Math.PI * 2;
+        gits[i].rotation.z = Math.cubic( gits[i].position.z/100, 0, 1, 1) * Math.PI * 2 * gitsSpinSpeed[i];
       }
 
       // camera shake ========
@@ -292,10 +275,7 @@ function init() {
     f2_width.onChange (function(value){ updateRing(); });
     f2_segments.onChange (function(value){ updateRing(); });
     f2_color.onChange (function(value){ updateRing(); });
-    
-
-
-
+  
 
     function updateGits(){
       var innerRadius;
@@ -400,11 +380,8 @@ function init() {
         a.click();
         URL.revokeObjectURL( url );
         document.getElementById('gif-rendering').classList.remove('active');
-        
       });
-
       // renderer.setSize(canvasWidth, canvasHeight);   
-       
       capturer = new CCapture({
         format: 'gif', workersPath: 'js/',
         verbose: true,
@@ -416,6 +393,9 @@ function init() {
       });
       capTrigger = false;
       renderer.setSize(canvasWidth, canvasHeight);
+      aspect = width / height;
+      camera = new THREE.PerspectiveCamera( fov,  aspect, near, far );
+      
       myCanvas.style.width = '100%';
       myCanvas.style.height = 'initial';
       
@@ -528,7 +508,9 @@ function init() {
     a.href = url;
     a.download = '' + data.title + ( +new Date() ) + '.json';  //ファイル名設定
     // a.download = 'hogahogahoga.onom';  //ファイル名設定
+    document.getElementById('gif-rendering').appendChild(a);
     a.click();
+    document.getElementById('gif-rendering').removeChild(a);
     URL.revokeObjectURL( url );
   };
   function load(){
@@ -555,7 +537,6 @@ function init() {
     // height:720
   });
 
-
   var capTrigger = false;
   function exportGif2(){
     document.getElementById('gif-rendering').classList.add('active');
@@ -570,7 +551,6 @@ function init() {
 
   function exportGif(){
     document.getElementById('gif-rendering').classList.add('active');
-    // camera = new THREE.PerspectiveCamera( fov, 1, near, far );
     renderer.setSize(400, 225);
     frame = 0;
     capturer.start();
