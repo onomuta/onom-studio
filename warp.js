@@ -315,7 +315,9 @@ function init() {
         var a = document.createElement( 'a' );
         a.href = url;
         a.download = 'loop.gif';  //ファイル名設定
+        document.getElementById('gif-rendering').appendChild(a);
         a.click();
+        document.getElementById('gif-rendering').removeChild(a);
         URL.revokeObjectURL( url );
         document.getElementById('gif-rendering').classList.remove('active');
         
