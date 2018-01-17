@@ -394,8 +394,7 @@ function init() {
       capTrigger = false;
       renderer.setSize(canvasWidth, canvasHeight);
       aspect = width / height;
-      camera = new THREE.PerspectiveCamera( fov,  aspect, near, far );
-      camera.lookAt(new THREE.Vector3(0, ctrl.f0_cameraPosition, 0));      
+      camera = new THREE.PerspectiveCamera( fov,  aspect, near, far );    
       myCanvas.style.width = '100%';
       myCanvas.style.height = 'initial';
       
