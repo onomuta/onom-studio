@@ -61,8 +61,11 @@ function init() {
       this.load_json = function() { load()};
     };
 
+
     var gui = new dat.GUI();
 
+
+    gui.remember(ctrl);
 
     
     var f1 = gui.addFolder('Particle');
