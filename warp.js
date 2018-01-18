@@ -377,7 +377,9 @@ function init() {
         var a = document.createElement( 'a' );
         a.href = url;
         a.download = 'loop.gif';  //ファイル名設定
+        document.getElementById('gif-rendering').appendChild(a);
         a.click();
+        document.getElementById('gif-rendering').removeChild(a);
         URL.revokeObjectURL( url );
         document.getElementById('gif-rendering').classList.remove('active');
       });
@@ -507,9 +509,7 @@ function init() {
     a.href = url;
     a.download = '' + data.title + ( +new Date() ) + '.json';  //ファイル名設定
     // a.download = 'hogahogahoga.onom';  //ファイル名設定
-    document.getElementById('gif-rendering').appendChild(a);
     a.click();
-    document.getElementById('gif-rendering').removeChild(a);
     URL.revokeObjectURL( url );
   };
   function load(){
