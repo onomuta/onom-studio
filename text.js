@@ -184,7 +184,7 @@ function init() {
     textMesh.scale.set(ctrl.size,ctrl.size,ctrl.size);
     textMesh.position.y = (ctrl.size * -10) +3;
 
-    scene.rotation.y = Math.Cubic(time,0,1,1) * ( Math.PI / 180 ) *360 ;    
+    scene.rotation.y = Math.cubic(time,0,1,1) * ( Math.PI / 180 ) *360 ;    
 
     camera.position.x = Math.sin(time * 6.25)* 4;
     camera.position.y = Math.sin(time * 6.25)* 5;
